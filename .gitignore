@@ -6,3 +6,38 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# Dependencies
+/.pnp
+.pnp.js
+
+# Testing
+/coverage
+
+# IDE & Editor
+.vscode
+.idea
+.cursor
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+*.swp
+*.swo
+
+# OS
+Thumbs.db
+
+# Tailwind & CSS
+postcss-process/
+
+# Vite
+.vite/
+
+# npm
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+lerna-debug.log*
+
