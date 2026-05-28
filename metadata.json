@@ -1,0 +1,6 @@
+{
+  "name": "冷氣空調報價查詢系統",
+  "description": "提供各品牌冷氣型號、尺寸、價格查詢，支援一對多機種分類，並可勾選產品產生報價單，自訂施工品項與價格。",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}

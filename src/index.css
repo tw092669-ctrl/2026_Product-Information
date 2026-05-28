@@ -1,0 +1,57 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&family=Outfit:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400;1,600&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+  --font-display: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-serif: "Playfair Display", ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+}
+
+/* Quote Dark Theme Overrides */
+.quote-dark {
+  background-image: linear-gradient(135deg, #1e293b 0%, #0f172a 50%, #000000 100%);
+  background-color: #000;
+  color: #f3f4f6 !important;
+}
+
+.quote-dark .border-black {
+  border-color: #475569 !important;
+}
+
+.quote-dark .text-slate-800, 
+.quote-dark .text-slate-900, 
+.quote-dark .text-black,
+.quote-dark td.text-black {
+  color: #f3f4f6 !important;
+}
+
+.quote-dark .bg-white {
+  background-color: transparent !important;
+}
+
+.quote-dark .bg-slate-50\/50, 
+.quote-dark .bg-slate-50 {
+  background-color: rgba(51, 65, 85, 0.4) !important;
+}
+
+.quote-dark .text-\[\#1e6ebb\] {
+  color: #7dd3fc !important; 
+}
+
+.quote-dark .text-red-600 {
+  color: #f87171 !important;
+}
+
+.quote-dark .text-slate-600 {
+  color: #94a3b8 !important;
+}
+
+.quote-dark input {
+  color: #f3f4f6 !important;
+}
+
+.quote-dark input::placeholder {
+  color: rgba(243, 244, 246, 0.4) !important;
+}
+
