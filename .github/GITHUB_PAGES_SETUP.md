@@ -29,14 +29,20 @@
    - Branch：選擇 **gh-pages** 和 **root**
    - 點擊 **Save**
 
-### 2. 設定 API 密鑰
+## 2. 設定環境變數 (Secrets)
 
-1. 進入倉庫設定：https://github.com/tw092669-ctrl/2026_Product-Information/settings
-2. 左側菜單選擇 **Secrets and variables > Actions**
-3. 點擊 **New repository secret**
-4. 名稱：`GEMINI_API_KEY`
-5. 值：粘貼你的 Gemini API 密鑰
-6. 點擊 **Add secret**
+### 必需的密鑰
+
+1. **GEMINI_API_KEY** (必需)
+   - 進入倉庫設定 → Secrets and variables → Actions
+   - 點擊 **New repository secret**
+   - 名稱：`GEMINI_API_KEY`
+   - 值：粘貼你的 Gemini API 密鑰
+   - 點擊 **Add secret**
+
+2. **APP_URL** (可選)
+   - 如不設定，將使用默認值：`https://tw092669-ctrl.github.io/2026_Product-Information/`
+   - 設定步驟同上，名稱為 `APP_URL`
 
 ## 工作流程
 
