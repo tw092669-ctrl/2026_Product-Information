@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Checkout code
+    workflow_dispatch:
         uses: actions/checkout@v4
       
       - name: Setup Node.js
@@ -27,13 +27,14 @@ jobs:
           node-version: '18'
           cache: 'npm'
       
-      - name: Create environment file
+    cancel-in-progress: false
         run: |
           cat > .env.local << 'EOF'
           GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY || 'default-key' }}
           APP_URL=${{ secrets.APP_URL || 'https://tw092669-ctrl.github.io/2026_Product-Information/' }}
           EOF
           echo "✓ Environment file created"
+           echo "Environment variables:"
           cat .env.local
       
       - name: Install dependencies
@@ -42,10 +43,16 @@ jobs:
       - name: Build project
         run: npm run build
       
-      - name: Setup Pages
-        uses: actions/configure-pages@v4
-      
+      - name: Verify build output
+        run: |
+          echo "Build output:"
+          ls -lah dist/
+          echo ""
+          echo "HTML content check:"
+          head -20 dist/index.html
+
       - name: Upload artifact
+        id: upload
         uses: actions/upload-pages-artifact@v3
         with:
           path: 'dist'
