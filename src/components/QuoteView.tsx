@@ -405,13 +405,13 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
                                {pIndex === group.length - 1 && groupIndex !== productGroups.length - 1 && repeatIndex === renderCount - 1 && (
                                    <button
                                      onClick={() => handleProductDetailChange(product.id, 'mergeWithNext', true)}
-                                     className="absolute -bottom-4 right-0 z-10 opacity-0 group-hover/merge:opacity-100 bg-white text-[10px] shadow-sm text-blue-600 border border-blue-200 rounded px-1 min-w-max print:hidden transition-opacity"
+                                     className="absolute -bottom-4 right-0 z-10 bg-white text-[10px] shadow-sm text-blue-600 border border-blue-200 rounded px-1 min-w-max print:hidden transition-opacity opacity-100 md:opacity-0 group-hover/merge:opacity-100"
                                    >向下合併</button>
                                )}
                                {pIndex !== group.length - 1 && repeatIndex === renderCount - 1 && (
                                    <button
                                      onClick={() => handleProductDetailChange(product.id, 'mergeWithNext', false)}
-                                     className="absolute -bottom-4 right-0 z-10 opacity-0 group-hover/merge:opacity-100 bg-white text-[10px] shadow-sm text-red-500 border border-red-200 rounded px-1 min-w-max print:hidden transition-opacity"
+                                     className="absolute -bottom-4 right-0 z-10 bg-white text-[10px] shadow-sm text-red-500 border border-red-200 rounded px-1 min-w-max print:hidden transition-opacity opacity-100 md:opacity-0 group-hover/merge:opacity-100"
                                    >取消合併</button>
                                )}
                             </div>
