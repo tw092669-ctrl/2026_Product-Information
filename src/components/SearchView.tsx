@@ -390,7 +390,7 @@ export const SearchView: React.FC<SearchViewProps> = ({
                         <td className="p-3 mt-2 md:mt-0 py-2 md:p-4 text-left md:text-center font-mono font-bold text-lg md:text-lg text-[#E8D099] block md:table-cell align-middle tracking-wide whitespace-normal md:whitespace-nowrap border-t md:border-none border-[#D4AF37]/10">
                           <div className="flex md:block items-center">
                             <span className="md:hidden w-16 text-[#D4AF37]/70 font-medium text-xs shrink-0 text-left font-sans">單價</span>
-                            <span className="text-left flex-1 md:text-center">${product.price.toLocaleString()}</span>
+                            <span className="text-left flex-1 md:text-center">{product.price.toLocaleString()}</span>
                           </div>
                         </td>
                       </tr>
