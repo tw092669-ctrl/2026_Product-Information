@@ -74,7 +74,7 @@ export const SearchView: React.FC<SearchViewProps> = ({
   // Auto-load Google Sheets on component mount
   useEffect(() => {
     const autoLoadUrl = import.meta.env.VITE_GOOGLE_SHEETS_URL;
-    if (autoLoadUrl && products.length === 0) {
+    if (autoLoadUrl) {
       const loadProducts = async () => {
         let csvUrl = autoLoadUrl;
         
