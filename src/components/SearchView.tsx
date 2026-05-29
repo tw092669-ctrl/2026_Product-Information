@@ -123,11 +123,6 @@ export const SearchView: React.FC<SearchViewProps> = ({
     }
   }, []);
 
-  const handleModeChange = (mode: ACMode) => {
-    setAcMode(mode);
-    setSelectedType('全部'); // Reset sub-type when mode changes
-  };
-
   const handleImport = async () => {
     if (!sheetUrl) return;
     setImportLoading(true);
