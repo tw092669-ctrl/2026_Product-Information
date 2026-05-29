@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Search, ShoppingCart, Info, LayoutDashboard, Layers, Link as LinkIcon, Download, X, Sun, Snowflake } from 'lucide-react';
 import Papa from 'papaparse';
 import { ACProduct, ACMode, ACType } from '../types';
@@ -65,6 +65,63 @@ export const SearchView: React.FC<SearchViewProps> = ({
       return true;
     });
   }, [products, searchTerm, acMode, selectedBrand, selectedType, selectedEnvironment]);
+
+  const handleModeChange = (mode: ACMode) => {
+    setAcMode(mode);
+    setSelectedType('全部'); // Reset sub-type when mode changes
+  };
+
+  // Auto-load Google Sheets on component mount
+  useEffect(() => {
+    const autoLoadUrl = import.meta.env.VITE_GOOGLE_SHEETS_URL;
+    if (autoLoadUrl && products.length === 0) {
+      const loadProducts = async () => {
+        let csvUrl = autoLoadUrl;
+        
+        // Convert google sheet URL to CSV export
+        if (autoLoadUrl.includes('/edit')) {
+          csvUrl = autoLoadUrl.replace(/\/edit.*$/, '/export?format=csv');
+        }
+
+        try {
+          Papa.parse(csvUrl, {
+            download: true,
+            header: true,
+            skipEmptyLines: true,
+            complete: (results) => {
+              const parsedProducts: ACProduct[] = results.data.map((row: any, index) => {
+                return {
+                  id: `imported-${index}`,
+                  model: row['產品名稱'] || row['型號'] || '',
+                  brand: row['品牌'] || '',
+                  type: row['樣式'] || row['種類'] || '一對一',
+                  kind: row['種類'] || '',
+                  pipeSize: row['管徑'] || '',
+                  environment: row['環境'] || '',
+                  indoorDimensions: row['室內機尺寸'] || '',
+                  outdoorDimensions: row['室外機尺寸'] || '',
+                  price: parseInt(row['價格'], 10) || 0,
+                  note: row['備註'] || '',
+                };
+              }).filter(p => p.model);
+
+              if (parsedProducts.length > 0) {
+                setProducts(parsedProducts);
+                console.log(`✓ Auto-loaded ${parsedProducts.length} products from Google Sheets`);
+              }
+            },
+            error: (err) => {
+              console.error('Auto-load failed:', err);
+            }
+          });
+        } catch (e) {
+          console.error('Auto-load error:', e);
+        }
+      };
+      
+      loadProducts();
+    }
+  }, []);
 
   const handleModeChange = (mode: ACMode) => {
     setAcMode(mode);
