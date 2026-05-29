@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     
     steps:
-    workflow_dispatch:
+      - name: Checkout code
         uses: actions/checkout@v4
       
       - name: Setup Node.js
@@ -27,14 +27,14 @@ jobs:
           node-version: '18'
           cache: 'npm'
       
-    cancel-in-progress: false
+      - name: Create environment file
         run: |
           cat > .env.local << 'EOF'
           GEMINI_API_KEY=${{ secrets.GEMINI_API_KEY || 'default-key' }}
           APP_URL=${{ secrets.APP_URL || 'https://tw092669-ctrl.github.io/2026_Product-Information/' }}
           EOF
           echo "✓ Environment file created"
-           echo "Environment variables:"
+          echo "Environment variables:"
           cat .env.local
       
       - name: Install dependencies
