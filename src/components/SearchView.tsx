@@ -299,21 +299,6 @@ export const SearchView: React.FC<SearchViewProps> = ({
               </div>
             </div>
 
-            {/* Brand Filter */}
-            <div className="flex items-center gap-2 flex-1 min-w-0">
-              <label className="hidden md:inline text-xs font-semibold text-[#D4AF37]/70 uppercase tracking-widest whitespace-nowrap shrink-0">品牌</label>
-              <select 
-                value={selectedBrand} 
-                onChange={e => setSelectedBrand(e.target.value)}
-                className="block w-full min-w-0 md:w-36 px-1 md:px-2 py-1.5 border border-[#D4AF37]/30 bg-[#151B2E] text-slate-200 rounded-md focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37]/50 transition-colors text-xs md:text-sm truncate"
-              >
-                <option value="全部">全部品牌</option>
-                {availableBrands.map(brand => (
-                  <option key={brand} value={brand}>{brand}</option>
-                ))}
-              </select>
-            </div>
-
             {/* Type Filter */}
             <div className="flex items-center gap-2 flex-1 min-w-0">
               <label className="hidden md:inline text-xs font-semibold text-[#D4AF37]/70 uppercase tracking-widest whitespace-nowrap shrink-0">機型</label>
@@ -344,10 +329,40 @@ export const SearchView: React.FC<SearchViewProps> = ({
               </select>
             </div>
           </div>
+
+          {/* Brand Selection (Visual Buttons) */}
+          <div className="flex flex-wrap items-center gap-2 mt-4 mb-2">
+            <span className="text-xs font-semibold text-[#D4AF37]/70 uppercase tracking-widest">品牌</span>
+            <div className="flex flex-wrap gap-1.5">
+              <button
+                onClick={() => setSelectedBrand('全部')}
+                className={cn(
+                  "px-3 py-1.5 text-xs md:text-sm font-medium rounded-md transition-all duration-300 border",
+                  selectedBrand === '全部'
+                    ? "bg-gradient-to-r from-[#D4AF37] to-[#e6ca7b] text-[#0B101E] shadow-sm font-bold border-[#D4AF37]"
+                    : "bg-[#151B2E] text-[#D4AF37]/70 border-[#D4AF37]/30 hover:border-[#D4AF37]/60 hover:bg-[#D4AF37]/5"
+                )}
+              >
+                全部
+              </button>
+              {availableBrands.map(brand => (
+                <button
+                  key={brand}
+                  onClick={() => setSelectedBrand(brand)}
+                  className={cn(
+                    "px-3 py-1.5 text-xs md:text-sm font-medium rounded-md transition-all duration-300",
+                    selectedBrand === brand
+                      ? cn(getBrandColor(brand), "shadow-sm font-bold ring-2 ring-offset-1 ring-offset-[#0B101E]")
+                      : cn(getBrandColor(brand), "opacity-60 hover:opacity-100")
+                  )}
+                >
+                  {brand}
+                </button>
+              ))}
+            </div>
+          </div>
         </div>
       </div>
-
-      {/* Main Content */}
       <div className="flex-1 p-6 overflow-auto">
         <div className="max-w-7xl mx-auto flex-1 flex flex-col bg-[#151B2E] rounded-xl overflow-hidden border border-[#D4AF37]/30 shadow-[0_0_40px_rgba(0,0,0,0.5)] ring-1 ring-inset ring-white/5 relative">
           <div className="absolute inset-1.5 border border-[#D4AF37]/10 pointer-events-none rounded-lg z-0"></div>
