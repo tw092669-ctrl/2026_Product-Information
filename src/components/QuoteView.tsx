@@ -274,7 +274,7 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
                     <h1 className="text-3xl font-bold tracking-[0.2em] text-[#1e6ebb] font-serif">{title}</h1>
                     <button 
                       onClick={() => setIsEditingTitle(true)}
-                      className="absolute -right-10 opacity-0 group-hover:opacity-100 text-slate-400 hover:text-[#1e6ebb] print:hidden transition-opacity bg-white p-1 rounded shadow-sm border border-slate-200"
+                      className="absolute -right-10 opacity-100 md:opacity-0 md:group-hover:opacity-100 text-slate-400 hover:text-[#1e6ebb] print:hidden transition-opacity bg-white p-1 rounded shadow-sm border border-slate-200"
                       title="編輯標題"
                     >
                       <Edit2 className="w-4 h-4" />
@@ -384,7 +384,7 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
                            className="font-bold"
                          />
                        </div>
-                       <button onClick={() => onRemoveProduct(mainProduct.id)} className="absolute top-1 left-1 opacity-0 group-hover:opacity-100 text-red-500 print:hidden transition-opacity">
+                       <button onClick={() => onRemoveProduct(mainProduct.id)} className="absolute top-1 left-1 opacity-100 md:opacity-0 md:group-hover:opacity-100 text-red-500 print:hidden transition-opacity">
                          <Trash2 className="w-3 h-3" />
                        </button>
                     </td>
@@ -405,13 +405,13 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
                                {pIndex === group.length - 1 && groupIndex !== productGroups.length - 1 && repeatIndex === renderCount - 1 && (
                                    <button
                                      onClick={() => handleProductDetailChange(product.id, 'mergeWithNext', true)}
-                                     className="absolute -bottom-4 right-0 z-10 bg-white text-[10px] shadow-sm text-blue-600 border border-blue-200 rounded px-1 min-w-max print:hidden transition-opacity opacity-100 md:opacity-0 group-hover/merge:opacity-100"
+                                     className="absolute -bottom-4 right-0 z-10 bg-white text-[10px] shadow-sm text-blue-600 border border-blue-200 rounded px-1 min-w-max print:hidden transition-opacity opacity-100 md:opacity-0 md:group-hover/merge:opacity-100"
                                    >向下合併</button>
                                )}
                                {pIndex !== group.length - 1 && repeatIndex === renderCount - 1 && (
                                    <button
                                      onClick={() => handleProductDetailChange(product.id, 'mergeWithNext', false)}
-                                     className="absolute -bottom-4 right-0 z-10 bg-white text-[10px] shadow-sm text-red-500 border border-red-200 rounded px-1 min-w-max print:hidden transition-opacity opacity-100 md:opacity-0 group-hover/merge:opacity-100"
+                                     className="absolute -bottom-4 right-0 z-10 bg-white text-[10px] shadow-sm text-red-500 border border-red-200 rounded px-1 min-w-max print:hidden transition-opacity opacity-100 md:opacity-0 md:group-hover/merge:opacity-100"
                                    >取消合併</button>
                                )}
                             </div>
@@ -462,7 +462,7 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
                        </div>
                        <button 
                          onClick={() => openAdjustment(mainProduct.id, mainDetails.priceAdjustment || 0)}
-                         className="absolute bottom-1 right-1 p-0.5 rounded opacity-0 group-hover/note:opacity-100 text-slate-400 hover:text-green-600 bg-white/80 hover:bg-white print:hidden transition-opacity"
+                         className="absolute bottom-1 right-1 p-0.5 rounded opacity-100 md:opacity-0 md:group-hover/note:opacity-100 text-slate-400 hover:text-green-600 bg-white/80 hover:bg-white print:hidden transition-opacity"
                          title="調整價格"
                        >
                          <DollarSign className="w-3.5 h-3.5" />
@@ -515,14 +515,14 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
                         </select>
                         <button 
                           onClick={() => openItemEdit(item.id, item.name)}
-                          className="absolute right-0 opacity-0 group-hover/name:opacity-100 text-slate-400 hover:text-[#1e6ebb] print:hidden transition-opacity bg-white p-0.5 rounded shadow-sm border border-slate-200"
+                          className="absolute right-0 opacity-100 md:opacity-0 md:group-hover/name:opacity-100 text-slate-400 hover:text-[#1e6ebb] print:hidden transition-opacity bg-white p-0.5 rounded shadow-sm border border-slate-200"
                           title="編輯自訂內容"
                         >
                           <Edit2 className="w-3.5 h-3.5" />
                         </button>
                       </div>
                       <span className="hidden print:inline">{item.name}</span>
-                      <button onClick={() => handleRemoveConstructionItem(item.id)} className="absolute top-1 left-0 opacity-0 group-hover:opacity-100 text-red-500 print:hidden transition-opacity -ml-6">
+                      <button onClick={() => handleRemoveConstructionItem(item.id)} className="absolute top-1 left-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 text-red-500 print:hidden transition-opacity -ml-6">
                         <Trash2 className="w-3 h-3" />
                       </button>
                     </td>
@@ -559,7 +559,7 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
                     <td className="px-1 font-mono tracking-wide align-middle relative">
                       {item.price && item.quantity ? Math.round(item.price * item.quantity).toLocaleString() : ''}
                       
-                      <div className="absolute top-1/2 left-full -translate-y-1/2 ml-2 flex flex-col gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity print:hidden">
+                      <div className="absolute top-1/2 left-full -translate-y-1/2 ml-2 flex flex-col gap-0.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity print:hidden">
                         <button 
                           onClick={() => handleMoveConstructionItem(index, 'up')} 
                           disabled={index === 0} 
