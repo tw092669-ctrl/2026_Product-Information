@@ -4,10 +4,10 @@ export type ACType =
   | '窗型' 
   | '落地' 
   | '四方吹' 
-  | '一對多內機' 
-  | '一對多外機';
+  | '多聯內機' 
+  | '多聯外機';
 
-export type ACMode = '一對一' | '一對多';
+export type ACMode = '整組' | '多聯';
 
 export interface ACProduct {
   id: string;
