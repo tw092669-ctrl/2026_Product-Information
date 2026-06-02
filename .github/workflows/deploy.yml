@@ -35,7 +35,7 @@ jobs:
           echo "✓ Environment file created"
       
       - name: Install dependencies
-        run: npm ci
+        run: npm install --prefer-offline --no-audit
 
       - name: Check Vite installation
         run: |
