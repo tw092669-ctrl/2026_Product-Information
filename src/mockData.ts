@@ -29,9 +29,9 @@ export const MOCK_AC_PRODUCTS: ACProduct[] = [
   { id: 's-1', brand: '聲寶 (Sampo)', model: 'AW-PF28D(右吹)', type: '窗型', kind: '變頻', pipeSize: '', environment: '冷氣', indoorDimensions: '470 × 360 × 675', outdoorDimensions: '', price: 16600, note: 'S28' },
   { id: 's-2', brand: '聲寶 (Sampo)', model: 'AW-R(L)H28DC', type: '窗型', kind: '變頻', pipeSize: '', environment: '暖氣', indoorDimensions: '580 × 360 × 655', outdoorDimensions: '', price: 17500, note: 'S28' },
 
-  // === 三菱重工 (Mitsubishi Heavy) ===
-  { id: 'm-1', brand: '三菱重工 (Mitsubishi Heavy)', model: 'DXK25ZST2-W/DXC25ZST2-W', type: '壁掛型', kind: '變頻', pipeSize: '2/3', environment: '暖氣', indoorDimensions: '870 × 290 × 230', outdoorDimensions: '780 × 540 × 290', price: 29000, note: 'D28' },
-  { id: 'm-2', brand: '三菱重工 (Mitsubishi Heavy)', model: 'DXM45ZST-W', type: '多聯', kind: '變頻', pipeSize: '2/3*2', environment: '暖氣', indoorDimensions: '', outdoorDimensions: '', price: 34400, note: 'Zivx' },
+  // === 重工 (Mitsubishi Heavy) ===
+  { id: 'm-1', brand: '重工 (Mitsubishi Heavy)', model: 'DXK25ZST2-W/DXC25ZST2-W', type: '壁掛型', kind: '變頻', pipeSize: '2/3', environment: '暖氣', indoorDimensions: '870 × 290 × 230', outdoorDimensions: '780 × 540 × 290', price: 29000, note: 'D28' },
+  { id: 'm-2', brand: '重工 (Mitsubishi Heavy)', model: 'DXM45ZST-W', type: '多聯', kind: '變頻', pipeSize: '2/3*2', environment: '暖氣', indoorDimensions: '', outdoorDimensions: '', price: 34400, note: 'Zivx' },
 
   // === 華菱 (Hawrin) ===
   { id: 'hw-1', brand: '華菱 (Hawrin)', model: 'RS-28IHU / RO-28IHU', type: '壁掛型', kind: '變頻', pipeSize: '2/3', environment: '暖氣', indoorDimensions: '805 × 270 × 215', outdoorDimensions: '870 × 540 × 320', price: 14800, note: 'B28' },

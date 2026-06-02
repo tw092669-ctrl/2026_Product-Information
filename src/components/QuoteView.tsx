@@ -150,8 +150,8 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
   const equipmentTitle = useMemo(() => {
     if (products.length > 0) {
        const brands = Array.from(new Set(products.map(p => p.brand)));
-       if (brands.length === 1 && (brands[0].includes('Mitsubishi') || brands[0].includes('三菱'))) {
-          return '三菱重工系列空調設備';
+       if (brands.length === 1 && (brands[0].includes('Mitsubishi') || brands[0].includes('重工'))) {
+          return '重工系列空調設備';
        } else if (brands.length === 1) {
           return `${brands[0]}系列空調設備`;
        }
