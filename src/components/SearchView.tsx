@@ -341,8 +341,40 @@ export const SearchView: React.FC<SearchViewProps> = ({
             </div>
           </div>
 
-          <div className="flex flex-nowrap items-center gap-2 md:gap-4 bg-[#0A0E1A]/80 p-2 md:p-3 rounded-lg border border-[#D4AF37]/20 w-full shadow-inner ring-1 ring-white/5">
-            {/* Mode Selection */}
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-xs font-semibold text-[#D4AF37]/70 uppercase tracking-widest">{t.brand}</span>
+              <div className="flex flex-wrap gap-1.5">
+                <button
+                  onClick={() => setSelectedBrand('全部')}
+                  className={cn(
+                    "px-3 py-1.5 text-xs md:text-sm font-medium rounded-md transition-all duration-300 border",
+                    selectedBrand === '全部'
+                      ? "bg-gradient-to-r from-[#D4AF37] to-[#e6ca7b] text-[#0B101E] shadow-sm font-bold border-[#D4AF37]"
+                      : "bg-[#151B2E] text-[#D4AF37]/70 border-[#D4AF37]/30 hover:border-[#D4AF37]/60 hover:bg-[#D4AF37]/5"
+                  )}
+                >
+                  {t.all}
+                </button>
+                {availableBrands.map(brand => (
+                  <button
+                    key={brand}
+                    onClick={() => setSelectedBrand(brand)}
+                    className={cn(
+                      "px-3 py-1.5 text-xs md:text-sm font-medium rounded-md transition-all duration-300",
+                      selectedBrand === brand
+                        ? cn(getBrandColor(brand), "shadow-sm font-bold ring-2 ring-offset-1 ring-offset-[#0B101E]")
+                        : cn(getBrandColor(brand), "opacity-60 hover:opacity-100")
+                    )}
+                  >
+                    {brand}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="flex flex-nowrap items-center gap-2 md:gap-4 bg-[#0A0E1A]/80 p-2 md:p-3 rounded-lg border border-[#D4AF37]/20 w-full shadow-inner ring-1 ring-white/5">
+              {/* Mode Selection */}
             <div className="flex items-center gap-2 border-r border-[#D4AF37]/20 pr-2 md:pr-4 shrink-0">
               <span className="hidden md:inline text-xs font-semibold text-[#D4AF37]/70 uppercase tracking-widest">{t.type}</span>
               <div className="flex p-0.5 bg-[#151B2E] rounded-md border border-[#D4AF37]/10">
@@ -362,66 +394,35 @@ export const SearchView: React.FC<SearchViewProps> = ({
               </div>
             </div>
 
-            {/* Type Filter */}
-            <div className="flex items-center gap-2 flex-1 min-w-0">
-              <label className="hidden md:inline text-xs font-semibold text-[#D4AF37]/70 uppercase tracking-widest whitespace-nowrap shrink-0">{t.model}</label>
-              <select 
-                value={selectedType} 
-                onChange={e => setSelectedType(e.target.value)}
-                className="block w-full min-w-0 md:w-36 px-1 md:px-2 py-1.5 border border-[#D4AF37]/30 bg-[#151B2E] text-slate-200 rounded-md focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37]/50 transition-colors text-xs md:text-sm truncate"
-              >
-                <option value="全部">{t.allModels}</option>
-                {currentAvailableTypes.map(type => (
-                  <option key={type} value={type}>{type}</option>
-                ))}
-              </select>
-            </div>
-
-            {/* Environment Filter */}
-            <div className="flex items-center gap-2 flex-1 min-w-0">
-              <label className="hidden md:inline text-xs font-semibold text-[#D4AF37]/70 uppercase tracking-widest whitespace-nowrap shrink-0">{t.environment}</label>
-              <select 
-                value={selectedEnvironment} 
-                onChange={e => setSelectedEnvironment(e.target.value)}
-                className="block w-full min-w-0 md:w-28 px-1 md:px-2 py-1.5 border border-[#D4AF37]/30 bg-[#151B2E] text-slate-200 rounded-md focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37]/50 transition-colors text-xs md:text-sm truncate"
-              >
-                <option value="全部">{t.all}</option>
-                {availableEnvironments.map(env => (
-                  <option key={env} value={env}>{env}</option>
-                ))}
-              </select>
-            </div>
-          </div>
-
-          {/* Brand Selection (Visual Buttons) */}
-          <div className="flex flex-wrap items-center gap-2 mt-4 mb-2">
-            <span className="text-xs font-semibold text-[#D4AF37]/70 uppercase tracking-widest">{t.brand}</span>
-            <div className="flex flex-wrap gap-1.5">
-              <button
-                onClick={() => setSelectedBrand('全部')}
-                className={cn(
-                  "px-3 py-1.5 text-xs md:text-sm font-medium rounded-md transition-all duration-300 border",
-                  selectedBrand === '全部'
-                    ? "bg-gradient-to-r from-[#D4AF37] to-[#e6ca7b] text-[#0B101E] shadow-sm font-bold border-[#D4AF37]"
-                    : "bg-[#151B2E] text-[#D4AF37]/70 border-[#D4AF37]/30 hover:border-[#D4AF37]/60 hover:bg-[#D4AF37]/5"
-                )}
-              >
-                {t.all}
-              </button>
-              {availableBrands.map(brand => (
-                <button
-                  key={brand}
-                  onClick={() => setSelectedBrand(brand)}
-                  className={cn(
-                    "px-3 py-1.5 text-xs md:text-sm font-medium rounded-md transition-all duration-300",
-                    selectedBrand === brand
-                      ? cn(getBrandColor(brand), "shadow-sm font-bold ring-2 ring-offset-1 ring-offset-[#0B101E]")
-                      : cn(getBrandColor(brand), "opacity-60 hover:opacity-100")
-                  )}
+              {/* Type Filter */}
+              <div className="flex items-center gap-2 flex-1 min-w-0">
+                <label className="hidden md:inline text-xs font-semibold text-[#D4AF37]/70 uppercase tracking-widest whitespace-nowrap shrink-0">{t.model}</label>
+                <select 
+                  value={selectedType} 
+                  onChange={e => setSelectedType(e.target.value)}
+                  className="block w-full min-w-0 md:w-36 px-1 md:px-2 py-1.5 border border-[#D4AF37]/30 bg-[#151B2E] text-slate-200 rounded-md focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37]/50 transition-colors text-xs md:text-sm truncate"
                 >
-                  {brand}
-                </button>
-              ))}
+                  <option value="全部">{t.allModels}</option>
+                  {currentAvailableTypes.map(type => (
+                    <option key={type} value={type}>{type}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Environment Filter */}
+              <div className="flex items-center gap-2 flex-1 min-w-0">
+                <label className="hidden md:inline text-xs font-semibold text-[#D4AF37]/70 uppercase tracking-widest whitespace-nowrap shrink-0">{t.environment}</label>
+                <select 
+                  value={selectedEnvironment} 
+                  onChange={e => setSelectedEnvironment(e.target.value)}
+                  className="block w-full min-w-0 md:w-28 px-1 md:px-2 py-1.5 border border-[#D4AF37]/30 bg-[#151B2E] text-slate-200 rounded-md focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37]/50 transition-colors text-xs md:text-sm truncate"
+                >
+                  <option value="全部">{t.all}</option>
+                  {availableEnvironments.map(env => (
+                    <option key={env} value={env}>{env}</option>
+                  ))}
+                </select>
+              </div>
             </div>
           </div>
         </div>

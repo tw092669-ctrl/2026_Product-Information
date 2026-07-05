@@ -609,7 +609,7 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
                       <span className={cn("hidden", mainProduct.quantity === 1 ? "" : "print:inline")}>{mainProduct.quantity} {language === 'fr' ? 'unité' : '組'}</span>
                     </td>
                     <td className="border-r border-black p-1 font-mono tracking-wide align-middle">
-                      <div className="flex items-center justify-center min-h-[3.5rem] h-full">{(unitPrice * mainProduct.quantity).toLocaleString()}</div>
+                      <div className="flex items-center justify-center min-h-[3.5rem] h-full">{((unitPrice || 0) * (mainProduct.quantity || 1)).toLocaleString()}</div>
                     </td>
                     <td className="p-1 align-middle relative group/note text-center">
                        <div className="flex flex-col items-center justify-center min-h-[3.5rem] w-full">
@@ -791,10 +791,10 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
                           className="w-full bg-transparent border-none focus:ring-0 p-0 outline-none text-center print:hidden font-mono"
                           placeholder="0"
                         />
-                       <span className="hidden print:inline">{item.price ? item.price.toLocaleString() : ''}</span>
+                       <span className="hidden print:inline">{(item.price || 0).toLocaleString()}</span>
                     </td>
                     <td className="px-1 font-mono tracking-wide align-middle relative">
-                      {calculateConstructionItemAmount(item).toLocaleString()}
+                      {(calculateConstructionItemAmount(item) || 0).toLocaleString()}
                       
                       <div className="absolute top-1/2 left-full -translate-y-1/2 ml-2 flex flex-col gap-0.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity print:hidden">
                         <button 
