@@ -1,9 +1,11 @@
-import React, { useState, useMemo, useEffect } from 'react';
-import { Search, ShoppingCart, Info, LayoutDashboard, Layers, Link as LinkIcon, Download, X, Sun, Snowflake } from 'lucide-react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { Search, ShoppingCart, Info, LayoutDashboard, Layers, Link as LinkIcon, Download, X, Sun, Snowflake, Copy } from 'lucide-react';
 import Papa from 'papaparse';
 import { ACProduct, ACMode, ACType } from '../types';
 import { cn, getBrandColor, getBrandDisplayName } from '../utils';
 import { uiText, type AppLanguage } from '../i18n';
+
+const DEFAULT_GOOGLE_SHEETS_URL = 'https://docs.google.com/spreadsheets/d/1_-nf2oUtNDKDZ60ad4BDDpRK9l7U0TQmt9a_It6urok/edit?usp=drive_link';
 
 interface SearchViewProps {
   products: ACProduct[];
@@ -35,6 +37,9 @@ export const SearchView: React.FC<SearchViewProps> = ({
   const [importLoading, setImportLoading] = useState(false);
   const [isSimplified, setIsSimplified] = useState(false);
   const [duplicatePromptProduct, setDuplicatePromptProduct] = useState<ACProduct | null>(null);
+  const [isLoadingProducts, setIsLoadingProducts] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const [copiedProductName, setCopiedProductName] = useState<string | null>(null);
 
   const availableBrands = useMemo(() => {
     return Array.from(new Set(products.map(p => getBrandDisplayName(p.brand)))).sort();
@@ -79,10 +84,39 @@ export const SearchView: React.FC<SearchViewProps> = ({
 
   const currentLabel = language === 'zh' ? '中文' : 'Français';
 
+  const handleCopyProductName = async (product: ACProduct, event: React.MouseEvent) => {
+    event.stopPropagation();
+    const textToCopy = product.model;
+
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(textToCopy);
+      } else {
+        const textarea = document.createElement('textarea');
+        textarea.value = textToCopy;
+        textarea.setAttribute('readonly', '');
+        textarea.style.position = 'fixed';
+        textarea.style.left = '-9999px';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+      }
+      setCopiedProductName(textToCopy);
+      window.setTimeout(() => setCopiedProductName(null), 1200);
+    } catch (error) {
+      console.error('Copy failed', error);
+    }
+  };
+
   // Auto-load Google Sheets on component mount
   useEffect(() => {
-    const autoLoadUrl = import.meta.env.VITE_GOOGLE_SHEETS_URL;
+    const autoLoadUrl = import.meta.env.VITE_GOOGLE_SHEETS_URL || DEFAULT_GOOGLE_SHEETS_URL;
     if (autoLoadUrl) {
+      setSheetUrl(autoLoadUrl);
+      setIsLoadingProducts(true);
+      setLoadError(null);
+
       const loadProducts = async () => {
         let csvUrl = autoLoadUrl;
         
@@ -115,19 +149,34 @@ export const SearchView: React.FC<SearchViewProps> = ({
 
               if (parsedProducts.length > 0) {
                 setProducts(parsedProducts);
+                setIsLoadingProducts(false);
                 console.log(`✓ Auto-loaded ${parsedProducts.length} products from Google Sheets`);
+              } else {
+                setProducts([]);
+                setIsLoadingProducts(false);
+                setLoadError('無法從試算表讀取產品資料。');
               }
             },
             error: (err) => {
               console.error('Auto-load failed:', err);
+              setProducts([]);
+              setIsLoadingProducts(false);
+              setLoadError('無法讀取雲端試算表，請確認網址可存取。');
             }
           });
         } catch (e) {
           console.error('Auto-load error:', e);
+          setProducts([]);
+          setIsLoadingProducts(false);
+          setLoadError('無法讀取雲端試算表，請確認網址可存取。');
         }
       };
       
       loadProducts();
+    } else {
+      setProducts([]);
+      setIsLoadingProducts(false);
+      setLoadError('尚未設定可用的試算表來源。');
     }
   }, []);
 
@@ -380,11 +429,16 @@ export const SearchView: React.FC<SearchViewProps> = ({
       <div className="flex-1 p-6 overflow-auto">
         <div className="max-w-7xl mx-auto flex-1 flex flex-col bg-[#151B2E] rounded-xl overflow-hidden border border-[#D4AF37]/30 shadow-[0_0_40px_rgba(0,0,0,0.5)] ring-1 ring-inset ring-white/5 relative">
           <div className="absolute inset-1.5 border border-[#D4AF37]/10 pointer-events-none rounded-lg z-0"></div>
-          {filteredProducts.length === 0 ? (
-             <div className="flex flex-col items-center justify-center p-12 text-[#D4AF37]/50 bg-[#151B2E] rounded-xl border border-dashed border-[#D4AF37]/30 relative z-10 m-3">
-               <Info className="w-8 h-8 mb-3" />
-               <p>{t.emptyState}</p>
-             </div>
+          {isLoadingProducts ? (
+            <div className="flex flex-col items-center justify-center p-12 text-[#D4AF37]/70 bg-[#151B2E] rounded-xl border border-dashed border-[#D4AF37]/30 relative z-10 m-3">
+              <Info className="w-8 h-8 mb-3" />
+              <p>正在讀取雲端試算表資料...</p>
+            </div>
+          ) : filteredProducts.length === 0 ? (
+            <div className="flex flex-col items-center justify-center p-12 text-[#D4AF37]/50 bg-[#151B2E] rounded-xl border border-dashed border-[#D4AF37]/30 relative z-10 m-3">
+              <Info className="w-8 h-8 mb-3" />
+              <p>{loadError || t.emptyState}</p>
+            </div>
           ) : (
             <div className="flex-1 overflow-auto rounded-xl relative z-10 m-1.5 bg-[#0B101E]/50">
               <table className="w-full text-left border-collapse block md:table">
@@ -439,10 +493,19 @@ export const SearchView: React.FC<SearchViewProps> = ({
                                 <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#0A0E1A] text-gray-400 border border-[#D4AF37]/20">{product.kind}</span>
                               )}
                             </div>
-                            <div className="flex items-center justify-start gap-1.5 font-mono text-sm text-slate-200 font-medium group-hover:text-white transition-colors flex-wrap">
+                            <div
+                              className="flex items-center justify-start gap-1.5 font-mono text-sm text-slate-200 font-medium group-hover:text-white transition-colors flex-wrap"
+                            >
                               {product.environment === '暖氣' && <Sun className="w-4 h-4 text-orange-400 shrink-0" />}
                               {product.environment === '冷氣' && <Snowflake className="w-4 h-4 text-blue-300 shrink-0" />}
                               <span>{product.model}</span>
+                              <button
+                                onClick={(e) => handleCopyProductName(product, e)}
+                                className="ml-1 p-1 rounded hover:bg-[#D4AF37]/20 text-[#D4AF37]/70 hover:text-[#D4AF37] transition-all duration-200 flex-shrink-0"
+                                title="複製產品名稱"
+                              >
+                                <Copy className="w-4 h-4" />
+                              </button>
                             </div>
                           </div>
                         </td>
@@ -483,6 +546,12 @@ export const SearchView: React.FC<SearchViewProps> = ({
           )}
         </div>
       </div>
+
+      {copiedProductName && (
+        <div className="fixed bottom-24 right-6 z-[60] rounded-full border border-[#D4AF37]/40 bg-[#151B2E]/90 px-4 py-2 text-sm text-[#E8D099] shadow-lg backdrop-blur">
+          已複製：{copiedProductName}
+        </div>
+      )}
 
       {/* Floating Action Bar */}
       {selectedProducts.length > 0 && (

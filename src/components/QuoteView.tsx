@@ -422,6 +422,39 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
                                <div className="font-mono text-center mb-1">
                                   {product.model}
                                </div>
+                               {pIndex === 0 && repeatIndex === 0 && (
+                                 <div className="mb-1 flex flex-wrap justify-center gap-1.5 md:hidden">
+                                   <button
+                                     onClick={(e) => {
+                                       e.stopPropagation();
+                                       onRemoveProduct(mainProduct.id);
+                                     }}
+                                     className="rounded border border-red-200 bg-red-50 px-2 py-1 text-[10px] font-medium text-red-600"
+                                   >
+                                     刪除
+                                   </button>
+                                   {groupIndex !== productGroups.length - 1 ? (
+                                     <button
+                                       onClick={(e) => {
+                                         e.stopPropagation();
+                                         handleProductDetailChange(mainProduct.id, 'mergeWithNext', true);
+                                       }}
+                                       className="rounded border border-blue-200 bg-blue-50 px-2 py-1 text-[10px] font-medium text-blue-600"
+                                     >
+                                       合併
+                                     </button>
+                                   ) : null}
+                                   <button
+                                     onClick={(e) => {
+                                       e.stopPropagation();
+                                       openAdjustment(mainProduct.id, mainDetails.priceAdjustment || 0);
+                                     }}
+                                     className="rounded border border-emerald-200 bg-emerald-50 px-2 py-1 text-[10px] font-medium text-emerald-600"
+                                   >
+                                     調整
+                                   </button>
+                                 </div>
+                               )}
                                {pIndex === group.length - 1 && groupIndex !== productGroups.length - 1 && repeatIndex === renderCount - 1 && (
                                    <button
                                      onClick={() => handleProductDetailChange(product.id, 'mergeWithNext', true)}
@@ -542,6 +575,46 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
                         </button>
                       </div>
                       <span className="hidden print:inline">{item.name}</span>
+                      <div className="mt-2 flex flex-wrap justify-center gap-1.5 md:hidden">
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            openItemEdit(item.id, item.name);
+                          }}
+                          className="rounded border border-slate-200 bg-white px-2 py-1 text-[10px] font-medium text-slate-600 shadow-sm"
+                        >
+                          編輯
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleMoveConstructionItem(index, 'up');
+                          }}
+                          disabled={index === 0}
+                          className="rounded border border-slate-200 bg-white px-2 py-1 text-[10px] font-medium text-slate-600 shadow-sm disabled:opacity-40"
+                        >
+                          上移
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleMoveConstructionItem(index, 'down');
+                          }}
+                          disabled={index === constructionItems.length - 1}
+                          className="rounded border border-slate-200 bg-white px-2 py-1 text-[10px] font-medium text-slate-600 shadow-sm disabled:opacity-40"
+                        >
+                          下移
+                        </button>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleRemoveConstructionItem(item.id);
+                          }}
+                          className="rounded border border-red-200 bg-red-50 px-2 py-1 text-[10px] font-medium text-red-600 shadow-sm"
+                        >
+                          刪除
+                        </button>
+                      </div>
                       <button onClick={() => handleRemoveConstructionItem(item.id)} className="absolute top-1 left-0 opacity-100 md:opacity-0 md:group-hover:opacity-100 text-red-500 print:hidden transition-opacity -ml-6">
                         <Trash2 className="w-3 h-3" />
                       </button>

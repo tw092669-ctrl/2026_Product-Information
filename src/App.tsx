@@ -2,13 +2,12 @@ import React, { useState } from 'react';
 import { ACProduct, QuoteProduct } from './types';
 import { SearchView } from './components/SearchView';
 import { QuoteView } from './components/QuoteView';
-import { MOCK_AC_PRODUCTS } from './mockData';
 import type { AppLanguage } from './i18n';
 
 export default function App() {
   const [currentView, setCurrentView] = useState<'search' | 'quote'>('search');
   const [selectedProducts, setSelectedProducts] = useState<QuoteProduct[]>([]);
-  const [products, setProducts] = useState<ACProduct[]>(MOCK_AC_PRODUCTS);
+  const [products, setProducts] = useState<ACProduct[]>([]);
   const [language, setLanguage] = useState<AppLanguage>('zh');
 
   const [quoteKey, setQuoteKey] = useState(0);
