@@ -46,8 +46,14 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
   const [activeItemEditId, setActiveItemEditId] = useState<string | null>(null);
   const [itemEditInput, setItemEditInput] = useState<string>('');
   const [bgTheme, setBgTheme] = useState<'light' | 'dark'>('light');
+  const [activeReorder, setActiveReorder] = useState<{
+    type: 'product' | 'construction' | null;
+    sourceIndex: number | null;
+    hoverIndex: number | null;
+  }>({ type: null, sourceIndex: null, hoverIndex: null });
 
   const quoteRef = useRef<HTMLDivElement>(null);
+  const reorderTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     setTitle(t.defaultQuoteTitle);
@@ -56,6 +62,21 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
       date: new Date().toLocaleDateString(language === 'fr' ? 'fr-FR' : 'zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' })
     }));
   }, [language, t.defaultQuoteTitle]);
+
+  useEffect(() => {
+    return () => {
+      if (reorderTimerRef.current !== null) {
+        window.clearTimeout(reorderTimerRef.current);
+      }
+    };
+  }, []);
+
+  const clearReorderTimer = () => {
+    if (reorderTimerRef.current !== null) {
+      window.clearTimeout(reorderTimerRef.current);
+      reorderTimerRef.current = null;
+    }
+  };
 
   const getAutoPower = (model: string) => {
     const match = model.match(/\d+/);
@@ -148,9 +169,13 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
     return calculateProductsTotal(productGroups, productDetails);
   }, [productGroups, productDetails]);
 
+  const calculateConstructionItemAmount = (item: QuoteConstructionItem) => {
+    return Math.round((item.price || 0) * (item.quantity || 0));
+  };
+
   // 計算施工總計
   const constructionTotal = useMemo(() => {
-    return constructionItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
+    return constructionItems.reduce((sum, item) => sum + calculateConstructionItemAmount(item), 0);
   }, [constructionItems]);
 
   const grandTotal = productsTotal + constructionTotal;
@@ -196,6 +221,61 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
       nextProducts.splice(nextStart, 0, ...movedGroup);
       onReorderProducts(nextProducts);
     }
+  };
+
+  const moveProductGroupToIndex = (sourceIndex: number, targetIndex: number) => {
+    if (!onReorderProducts) return;
+    if (sourceIndex === targetIndex) return;
+
+    const nextGroups = [...productGroups];
+    const [movedGroup] = nextGroups.splice(sourceIndex, 1);
+    const adjustedTarget = sourceIndex < targetIndex ? targetIndex - 1 : targetIndex;
+    nextGroups.splice(adjustedTarget, 0, movedGroup);
+    onReorderProducts(nextGroups.flat());
+  };
+
+  const moveConstructionItemToIndex = (sourceIndex: number, targetIndex: number) => {
+    if (sourceIndex === targetIndex) return;
+
+    setConstructionItems(items => {
+      const nextItems = [...items];
+      const [movedItem] = nextItems.splice(sourceIndex, 1);
+      const adjustedTarget = sourceIndex < targetIndex ? targetIndex - 1 : targetIndex;
+      nextItems.splice(adjustedTarget, 0, movedItem);
+      return nextItems;
+    });
+  };
+
+  const handleReorderTouchStart = (type: 'product' | 'construction', sourceIndex: number) => (event: React.TouchEvent) => {
+    if (event.touches.length === 0) return;
+    event.preventDefault();
+    event.stopPropagation();
+    clearReorderTimer();
+    reorderTimerRef.current = window.setTimeout(() => {
+      setActiveReorder({ type, sourceIndex, hoverIndex: sourceIndex });
+    }, 350);
+  };
+
+  const handleReorderTouchMove = (event: React.TouchEvent) => {
+    if (!activeReorder.type || activeReorder.sourceIndex === null) return;
+
+    const touch = event.touches[0];
+    const target = document.elementFromPoint(touch.clientX, touch.clientY)?.closest<HTMLElement>('[data-reorder-index]');
+    const nextIndex = target ? Number(target.dataset.reorderIndex) : NaN;
+    if (!Number.isInteger(nextIndex) || nextIndex === activeReorder.hoverIndex) return;
+
+    if (activeReorder.type === 'product') {
+      moveProductGroupToIndex(activeReorder.sourceIndex, nextIndex);
+    } else {
+      moveConstructionItemToIndex(activeReorder.sourceIndex, nextIndex);
+    }
+
+    setActiveReorder(prev => prev.type ? { ...prev, hoverIndex: nextIndex } : prev);
+  };
+
+  const handleReorderTouchEnd = () => {
+    clearReorderTimer();
+    setActiveReorder({ type: null, sourceIndex: null, hoverIndex: null });
   };
 
   const handleAddConstructionItem = () => {
@@ -415,9 +495,21 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
                   }
                 });
                 
+                const isReorderTarget = activeReorder.type === 'product' && activeReorder.hoverIndex === groupIndex;
+
                 return (
-                  <tr key={mainProduct.id} className={cn("group", !isLast && "border-b border-black")}>
-                    <td className="border-r border-black p-1 align-middle relative">
+                  <tr
+                    key={mainProduct.id}
+                    className={cn("group", !isLast && "border-b border-black", isReorderTarget && "bg-amber-50/70")}
+                    data-reorder-index={groupIndex}
+                  >
+                    <td
+                      className="border-r border-black p-1 align-middle relative touch-none"
+                      onTouchStart={handleReorderTouchStart('product', groupIndex)}
+                      onTouchMove={handleReorderTouchMove}
+                      onTouchEnd={handleReorderTouchEnd}
+                      onTouchCancel={handleReorderTouchEnd}
+                    >
                        <div className="flex items-center justify-center h-full min-h-[3.5rem]">
                          <InputCell 
                            value={mainDetails.location} 
@@ -591,9 +683,21 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
             <tbody className="text-sm">
               {constructionItems.map((item, index) => {
                 const isLast = index === Math.max(constructionItems.length - 1, 4);
+                const isReorderTarget = activeReorder.type === 'construction' && activeReorder.hoverIndex === index;
+
                 return (
-                  <tr key={item.id} className={cn("group h-8", !isLast && "border-b border-black")}>
-                    <td className="border-r border-black px-1 relative text-center align-middle group/name">
+                  <tr
+                    key={item.id}
+                    className={cn("group h-8", !isLast && "border-b border-black", isReorderTarget && "bg-amber-50/70")}
+                    data-reorder-index={index}
+                  >
+                    <td
+                      className="border-r border-black px-1 relative text-center align-middle group/name touch-none"
+                      onTouchStart={handleReorderTouchStart('construction', index)}
+                      onTouchMove={handleReorderTouchMove}
+                      onTouchEnd={handleReorderTouchEnd}
+                      onTouchCancel={handleReorderTouchEnd}
+                    >
                       <div className="relative print:hidden flex items-center justify-center w-full h-full min-h-[2rem]">
                         <select
                           value={COMMON_CONSTRUCTION_ITEMS.includes(item.name) ? item.name : ""}
@@ -690,7 +794,7 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
                        <span className="hidden print:inline">{item.price ? item.price.toLocaleString() : ''}</span>
                     </td>
                     <td className="px-1 font-mono tracking-wide align-middle relative">
-                      {item.price && item.quantity ? Math.round(item.price * item.quantity).toLocaleString() : ''}
+                      {calculateConstructionItemAmount(item).toLocaleString()}
                       
                       <div className="absolute top-1/2 left-full -translate-y-1/2 ml-2 flex flex-col gap-0.5 opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity print:hidden">
                         <button 
