@@ -342,13 +342,13 @@ export const SearchView: React.FC<SearchViewProps> = ({
           </div>
 
           <div className="flex flex-col gap-3">
-            <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-semibold text-[#D4AF37]/70 uppercase tracking-widest">{t.brand}</span>
-              <div className="flex flex-wrap gap-1.5">
+            <div className="flex items-center gap-2 overflow-x-auto pb-1">
+              <span className="text-xs font-semibold text-[#D4AF37]/70 uppercase tracking-widest whitespace-nowrap">{t.brand}</span>
+              <div className="flex items-center gap-1.5 whitespace-nowrap">
                 <button
                   onClick={() => setSelectedBrand('全部')}
                   className={cn(
-                    "px-3 py-1.5 text-xs md:text-sm font-medium rounded-md transition-all duration-300 border",
+                    "px-3 py-1.5 text-xs md:text-sm font-medium rounded-full transition-all duration-300 border",
                     selectedBrand === '全部'
                       ? "bg-gradient-to-r from-[#D4AF37] to-[#e6ca7b] text-[#0B101E] shadow-sm font-bold border-[#D4AF37]"
                       : "bg-[#151B2E] text-[#D4AF37]/70 border-[#D4AF37]/30 hover:border-[#D4AF37]/60 hover:bg-[#D4AF37]/5"
@@ -361,10 +361,10 @@ export const SearchView: React.FC<SearchViewProps> = ({
                     key={brand}
                     onClick={() => setSelectedBrand(brand)}
                     className={cn(
-                      "px-3 py-1.5 text-xs md:text-sm font-medium rounded-md transition-all duration-300",
+                      "px-3 py-1.5 text-xs md:text-sm font-medium rounded-full transition-all duration-300",
                       selectedBrand === brand
                         ? cn(getBrandColor(brand), "shadow-sm font-bold ring-2 ring-offset-1 ring-offset-[#0B101E]")
-                        : cn(getBrandColor(brand), "opacity-60 hover:opacity-100")
+                        : cn(getBrandColor(brand), "opacity-70 hover:opacity-100")
                     )}
                   >
                     {brand}
