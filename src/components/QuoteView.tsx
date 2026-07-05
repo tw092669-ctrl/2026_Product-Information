@@ -1,32 +1,38 @@
-import React, { useState, useMemo, useRef } from 'react';
+import React, { useState, useMemo, useRef, useEffect } from 'react';
 import { ArrowLeft, Plus, Trash2, Printer, Image as ImageIcon, DollarSign, ChevronUp, ChevronDown, Edit2, Palette } from 'lucide-react';
 import html2canvas from 'html2canvas';
 import { QuoteProduct, QuoteConstructionItem } from '../types';
 import { COMMON_CONSTRUCTION_ITEMS, CONSTRUCTION_ITEM_PRICES } from '../mockData';
 import { cn, getBrandDisplayName } from '../utils';
+import { uiText, type AppLanguage } from '../i18n';
 
 interface QuoteViewProps {
   products: QuoteProduct[];
   onUpdateProductQuantity: (id: string, diff: number) => void;
   onRemoveProduct: (id: string) => void;
   onNavigateBack: (keepDetails: boolean) => void;
+  language: AppLanguage;
+  onToggleLanguage: () => void;
 }
 
 export const QuoteView: React.FC<QuoteViewProps> = ({
   products,
   onUpdateProductQuantity,
   onRemoveProduct,
-  onNavigateBack
+  onNavigateBack,
+  language,
+  onToggleLanguage,
 }) => {
+  const t = uiText[language];
   const [showBackWarning, setShowBackWarning] = useState(false);
-  const [title, setTitle] = useState('冷氣工程估價單');
+  const [title, setTitle] = useState(t.defaultQuoteTitle);
   const [isEditingTitle, setIsEditingTitle] = useState(false);
   const [constructionItems, setConstructionItems] = useState<QuoteConstructionItem[]>([]);
   const [customerInfo, setCustomerInfo] = useState({
     name: '',
     address: '',
     phone: '',
-    date: new Date().toLocaleDateString('zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' })
+    date: new Date().toLocaleDateString(language === 'fr' ? 'fr-FR' : 'zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' })
   });
   
   // Local overrides for product details
@@ -39,6 +45,14 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
   const [bgTheme, setBgTheme] = useState<'light' | 'dark'>('light');
 
   const quoteRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    setTitle(t.defaultQuoteTitle);
+    setCustomerInfo(prev => ({
+      ...prev,
+      date: new Date().toLocaleDateString(language === 'fr' ? 'fr-FR' : 'zh-TW', { year: 'numeric', month: '2-digit', day: '2-digit' })
+    }));
+  }, [language, t.defaultQuoteTitle]);
 
   const getAutoPower = (model: string) => {
     const match = model.match(/\d+/);
@@ -151,13 +165,13 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
     if (products.length > 0) {
        const brands = Array.from(new Set(products.map(p => p.brand)));
        if (brands.length === 1 && (brands[0].includes('Mitsubishi') || brands[0].includes('重工'))) {
-          return '重工系列空調設備';
+          return t.equipmentGroup;
        } else if (brands.length === 1) {
-          return `${brands[0]}系列空調設備`;
+          return `${brands[0]}${t.equipmentGroupDefault}`;
        }
     }
-    return '空調設備明細';
-  }, [products]);
+    return t.equipmentDetail;
+  }, [products, t]);
 
   const handleAddConstructionItem = () => {
     const newItem: QuoteConstructionItem = {
@@ -220,29 +234,35 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
           className="flex items-center gap-2 text-slate-600 hover:text-[#1e6ebb] font-medium transition-colors"
         >
           <ArrowLeft className="w-5 h-5" />
-          返回
+          {t.quoteBack}
         </button>
         <div className="flex items-center gap-3">
+          <button
+            onClick={onToggleLanguage}
+            className="flex items-center gap-1.5 px-3 py-2 rounded-lg font-medium transition-colors border bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200"
+          >
+            {t.switchLanguage}
+          </button>
           <button
             onClick={() => setBgTheme(prev => prev === 'light' ? 'dark' : 'light')}
             className={`flex items-center gap-1.5 px-3 py-2 rounded-lg font-medium transition-colors border ${bgTheme === 'dark' ? 'bg-slate-800 text-slate-100 border-slate-700 hover:bg-slate-700' : 'bg-slate-100 text-slate-700 border-slate-200 hover:bg-slate-200'}`}
           >
             <Palette className="w-4 h-4" />
-            風格: {bgTheme === 'dark' ? '漸層黑' : '一般(白)'}
+            {t.quoteTheme}: {bgTheme === 'dark' ? t.quoteThemeDark : t.quoteThemeLight}
           </button>
           <button 
             onClick={handleExportImage}
             className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-sm"
           >
             <ImageIcon className="w-4 h-4" />
-            匯出圖檔
+            {t.exportImage}
           </button>
           <button 
             onClick={() => window.print()}
             className="flex items-center gap-2 bg-[#1e6ebb] hover:bg-[#155694] text-white px-4 py-2 rounded-lg font-medium transition-colors shadow-sm"
           >
             <Printer className="w-4 h-4" />
-            預覽列印
+            {t.printPreview}
           </button>
         </div>
       </div>
@@ -275,7 +295,7 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
                     <button 
                       onClick={() => setIsEditingTitle(true)}
                       className="absolute -right-10 opacity-100 md:opacity-0 md:group-hover:opacity-100 text-slate-400 hover:text-[#1e6ebb] print:hidden transition-opacity bg-white p-1 rounded shadow-sm border border-slate-200"
-                      title="編輯標題"
+                      title={t.editTitle}
                     >
                       <Edit2 className="w-4 h-4" />
                     </button>
@@ -287,47 +307,47 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
         {/* Customer Info Section */}
         <div className="border border-black mb-6 flex flex-col font-sans">
           <div className="flex border-b border-black">
-            <div className="px-2 py-1 whitespace-nowrap hidden md:block">顧客姓名：</div>
-            <div className="px-2 py-1 whitespace-nowrap block md:hidden">姓名：</div>
+            <div className="px-2 py-1 whitespace-nowrap hidden md:block">{t.customerName}：</div>
+            <div className="px-2 py-1 whitespace-nowrap block md:hidden">{t.customerName}：</div>
             <input 
               type="text" 
               value={customerInfo.name} 
               onChange={e => setCustomerInfo({...customerInfo, name: e.target.value})} 
               className="flex-1 border-none focus:ring-0 p-0 pl-1 outline-none print:placeholder-transparent"
-              placeholder="輸入顧客姓名"
+              placeholder={t.placeholderName}
             />
           </div>
           <div className="flex border-b border-black">
-            <div className="px-2 py-1 whitespace-nowrap hidden md:block">顧客地址：</div>
-             <div className="px-2 py-1 whitespace-nowrap block md:hidden">地址：</div>
+            <div className="px-2 py-1 whitespace-nowrap hidden md:block">{t.customerAddress}：</div>
+             <div className="px-2 py-1 whitespace-nowrap block md:hidden">{t.customerAddress}：</div>
             <input 
               type="text" 
               value={customerInfo.address} 
               onChange={e => setCustomerInfo({...customerInfo, address: e.target.value})} 
               className="flex-1 border-none focus:ring-0 p-0 pl-1 outline-none print:placeholder-transparent"
-              placeholder="輸入顧客地址"
+              placeholder={t.placeholderAddress}
             />
           </div>
           <div className="flex border-b border-black">
-            <div className="px-2 py-1 whitespace-nowrap hidden md:block">顧客電話：</div>
-            <div className="px-2 py-1 whitespace-nowrap block md:hidden">電話：</div>
+            <div className="px-2 py-1 whitespace-nowrap hidden md:block">{t.customerPhone}：</div>
+            <div className="px-2 py-1 whitespace-nowrap block md:hidden">{t.customerPhone}：</div>
             <input 
               type="text" 
               value={customerInfo.phone} 
               onChange={e => setCustomerInfo({...customerInfo, phone: e.target.value})} 
               className="flex-1 border-none focus:ring-0 p-0 pl-1 outline-none print:placeholder-transparent"
-              placeholder="輸入顧客電話"
+              placeholder={t.placeholderPhone}
             />
           </div>
           <div className="flex">
-            <div className="px-2 py-1 whitespace-nowrap hidden md:block">估價日期：</div>
-            <div className="px-2 py-1 whitespace-nowrap block md:hidden">日期：</div>
+            <div className="px-2 py-1 whitespace-nowrap hidden md:block">{t.quoteDate}：</div>
+            <div className="px-2 py-1 whitespace-nowrap block md:hidden">{t.quoteDate}：</div>
             <input 
               type="text" 
               value={customerInfo.date} 
               onChange={e => setCustomerInfo({...customerInfo, date: e.target.value})} 
               className="flex-1 border-none focus:ring-0 p-0 pl-1 outline-none print:placeholder-transparent"
-              placeholder="YYYY/MM/DD"
+              placeholder={t.placeholderDate}
             />
           </div>
         </div>
@@ -340,13 +360,13 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
           <table className="w-full text-center border-collapse">
             <thead>
               <tr className="border-b border-black text-sm">
-                <th className="py-2 border-r border-black w-24">位 置</th>
-                <th className="py-2 border-r border-black">機 型</th>
-                <th className="py-2 border-r border-black w-20">功率(KW)</th>
-                <th className="py-2 border-r border-black w-24">單 價</th>
-                <th className="py-2 border-r border-black w-16">數 量</th>
-                <th className="py-2 border-r border-black w-28">價 錢</th>
-                <th className="py-2 w-24">備 註</th>
+                <th className="py-2 border-r border-black w-24">{t.location}</th>
+                <th className="py-2 border-r border-black">{t.model}</th>
+                <th className="py-2 border-r border-black w-20">{t.power}</th>
+                <th className="py-2 border-r border-black w-24">{t.unitPrice}</th>
+                <th className="py-2 border-r border-black w-16">{t.quantity}</th>
+                <th className="py-2 border-r border-black w-28">{t.amount}</th>
+                <th className="py-2 w-24">{t.note}</th>
               </tr>
             </thead>
             <tbody className="text-sm">
@@ -380,7 +400,7 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
                          <InputCell 
                            value={mainDetails.location} 
                            onChange={v => handleProductDetailChange(mainProduct.id, 'location', v)} 
-                           placeholder="位置"
+                           placeholder={t.placeholderLocation}
                            className="font-bold"
                          />
                        </div>
@@ -406,13 +426,13 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
                                    <button
                                      onClick={() => handleProductDetailChange(product.id, 'mergeWithNext', true)}
                                      className="absolute -bottom-4 right-0 z-10 bg-white text-[10px] shadow-sm text-blue-600 border border-blue-200 rounded px-1 min-w-max print:hidden transition-opacity opacity-100 md:opacity-0 md:group-hover/merge:opacity-100"
-                                   >向下合併</button>
+                                   >{t.mergeDown}</button>
                                )}
                                {pIndex !== group.length - 1 && repeatIndex === renderCount - 1 && (
                                    <button
                                      onClick={() => handleProductDetailChange(product.id, 'mergeWithNext', false)}
                                      className="absolute -bottom-4 right-0 z-10 bg-white text-[10px] shadow-sm text-red-500 border border-red-200 rounded px-1 min-w-max print:hidden transition-opacity opacity-100 md:opacity-0 md:group-hover/merge:opacity-100"
-                                   >取消合併</button>
+                                   >{t.unmerge}</button>
                                )}
                             </div>
                           ));
@@ -424,7 +444,7 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
                           <InputCell 
                             value={mainDetails.power !== undefined ? mainDetails.power : autoPower} 
                             onChange={v => handleProductDetailChange(mainProduct.id, 'power', v)} 
-                            placeholder="KW"
+                            placeholder={t.placeholderPower}
                           />
                        </div>
                     </td>
@@ -439,7 +459,7 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
                          <span className="w-6 text-center">{mainProduct.quantity}</span>
                          <button onClick={() => onUpdateProductQuantity(mainProduct.id, 1)} className="text-slate-400 hover:text-black">+</button>
                       </div>
-                      <span className={cn("hidden", mainProduct.quantity === 1 ? "" : "print:inline")}>{mainProduct.quantity} 組</span>
+                      <span className={cn("hidden", mainProduct.quantity === 1 ? "" : "print:inline")}>{mainProduct.quantity} {language === 'fr' ? 'unité' : '組'}</span>
                     </td>
                     <td className="border-r border-black p-1 font-mono tracking-wide align-middle">
                       <div className="flex items-center justify-center min-h-[3.5rem] h-full">{(unitPrice * mainProduct.quantity).toLocaleString()}</div>
@@ -449,7 +469,7 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
                          <InputCell 
                            value={mainDetails.notes} 
                            onChange={v => handleProductDetailChange(mainProduct.id, 'notes', v)} 
-                           placeholder="備註"
+                           placeholder={t.placeholderNote}
                          />
                          {mainDetails.priceAdjustment ? (
                            <div className={cn(
@@ -473,7 +493,7 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
               })}
               {products.length === 0 && (
                 <tr>
-                   <td colSpan={7} className="py-4 text-slate-400 italic font-sans text-center">尚未加入設備...</td>
+                   <td colSpan={7} className="py-4 text-slate-400 italic font-sans text-center">{t.noEquipment}</td>
                 </tr>
               )}
             </tbody>
@@ -488,11 +508,11 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
           <table className="w-full text-center border-collapse">
             <thead>
               <tr className="border-b border-black text-sm">
-                <th className="py-2 border-r border-black text-center">項 目</th>
-                <th className="py-2 border-r border-black w-32">規 格</th>
-                <th className="py-2 border-r border-black w-24">數 量</th>
-                <th className="py-2 border-r border-black w-24">單 價</th>
-                <th className="py-2 w-28">合 計</th>
+                <th className="py-2 border-r border-black text-center">{t.itemName}</th>
+                <th className="py-2 border-r border-black w-32">{t.spec}</th>
+                <th className="py-2 border-r border-black w-24">{t.quantity}</th>
+                <th className="py-2 border-r border-black w-24">{t.unitPrice}</th>
+                <th className="py-2 w-28">{t.amount}</th>
               </tr>
             </thead>
             <tbody className="text-sm">
@@ -508,7 +528,7 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
                           className="w-full h-full bg-transparent border-none focus:ring-0 p-0 outline-none text-center text-sm cursor-pointer appearance-none bg-none"
                           style={{ textAlignLast: "center" }}
                         >
-                          <option value="" disabled className="hidden">{item.name || "選擇施工項目"}</option>
+                          <option value="" disabled className="hidden">{item.name || t.placeholderItem}</option>
                           {COMMON_CONSTRUCTION_ITEMS.map(opt => (
                             <option key={opt} value={opt}>{opt}</option>
                           ))}
@@ -584,7 +604,7 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
                 <td className="border-r border-black relative">
                    <div className="absolute inset-0 flex items-center justify-center text-slate-400 group-hover:text-[#1e6ebb]">
                      <Plus className="w-4 h-4 mr-1" />
-                     <span className="text-sm font-medium">新增施工項目</span>
+                     <span className="text-sm font-medium">{t.addConstructionItem}</span>
                    </div>
                 </td>
                 <td className="border-r border-black"></td><td className="border-r border-black"></td><td className="border-r border-black"></td><td></td>
@@ -604,23 +624,23 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
                 <td colSpan={1} rowSpan={3} className="border-r border-black text-left px-6 py-4 align-top">
                   <div className="text-[17px] space-y-1.5 text-slate-800 font-medium tracking-wide">
                     <p>
-                      ◎ 訂金為設備款： <span className="font-mono ml-0.5">{productsTotal.toLocaleString()}</span>
+                      ◎ {t.deposit} <span className="font-mono ml-0.5">{productsTotal.toLocaleString()}</span>
                     </p>
                     <p>
-                      ◎ 完工驗收後尾款： <span className="font-mono ml-0.5">{constructionTotal.toLocaleString()}</span>
+                      ◎ {t.balance} <span className="font-mono ml-0.5">{constructionTotal.toLocaleString()}</span>
                     </p>
-                    <p className="mt-2.5">＊ 設備金額含稅、施工金額外加5%</p>
+                    <p className="mt-2.5">{t.taxNote}</p>
                   </div>
                 </td>
-                <td colSpan={2} className="py-2.5 border-r border-black font-medium tracking-wide text-center">施工總價</td>
+                <td colSpan={2} className="py-2.5 border-r border-black font-medium tracking-wide text-center">{t.constructionTotal}</td>
                 <td colSpan={2} className="py-2.5 font-mono tracking-wider font-medium text-center">{constructionTotal.toLocaleString()}</td>
               </tr>
               <tr className="border-b border-black">
-                <td colSpan={2} className="py-2.5 border-r border-black font-medium tracking-wide text-center">設備總價</td>
+                <td colSpan={2} className="py-2.5 border-r border-black font-medium tracking-wide text-center">{t.productTotal}</td>
                 <td colSpan={2} className="py-2.5 font-mono tracking-wider font-medium text-center">{productsTotal.toLocaleString()}</td>
               </tr>
               <tr>
-                <td colSpan={2} className="py-2.5 border-r border-black font-medium tracking-wide text-center">完工總價</td>
+                <td colSpan={2} className="py-2.5 border-r border-black font-medium tracking-wide text-center">{t.grandTotal}</td>
                 <td colSpan={2} className="py-2.5 font-mono tracking-wider font-medium text-center text-red-600">{grandTotal.toLocaleString()}</td>
               </tr>
             </tbody>
@@ -637,7 +657,7 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
           <div className="bg-white p-5 rounded-lg shadow-xl border border-slate-200">
             <h3 className="font-bold mb-4 flex items-center text-slate-800">
               <DollarSign className="w-5 h-5 mr-1 text-green-600" />
-              調整價格
+              {t.adjustmentTitle}
             </h3>
             <div className="flex items-center gap-3 mb-5">
               <input 
@@ -645,7 +665,7 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
                 value={adjustmentInput}
                 onChange={e => setAdjustmentInput(e.target.value)}
                 className="border border-slate-300 rounded-md px-3 py-1.5 outline-none focus:border-[#1e6ebb] w-36 text-center shadow-inner"
-                placeholder="例如: 3000 或 -3000"
+                placeholder={t.placeholderAdjustment}
                 autoFocus
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') handleAdjustmentSave(activeAdjustmentId);
@@ -655,12 +675,12 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
                 onClick={handleBatchAdjustment}
                 className="bg-purple-50 text-purple-700 border border-purple-200 px-3 py-1.5 rounded-md text-sm hover:bg-purple-100 font-medium transition-colors whitespace-nowrap"
               >
-                批量調整
+                {t.batchAdjust}
               </button>
             </div>
             <div className="flex justify-end gap-2">
-              <button onClick={() => setActiveAdjustmentId(null)} className="px-4 py-1.5 text-slate-600 hover:bg-slate-100 rounded-md transition-colors">取消</button>
-              <button onClick={() => handleAdjustmentSave(activeAdjustmentId)} className="bg-[#1e6ebb] text-white px-4 py-1.5 rounded-md hover:bg-[#155694] transition-colors shadow-sm">確定</button>
+              <button onClick={() => setActiveAdjustmentId(null)} className="px-4 py-1.5 text-slate-600 hover:bg-slate-100 rounded-md transition-colors">{t.cancel}</button>
+              <button onClick={() => handleAdjustmentSave(activeAdjustmentId)} className="bg-[#1e6ebb] text-white px-4 py-1.5 rounded-md hover:bg-[#155694] transition-colors shadow-sm">{t.confirm}</button>
             </div>
           </div>
         </div>
@@ -672,7 +692,7 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
           <div className="bg-white p-5 rounded-lg shadow-xl border border-slate-200 w-80 max-w-full m-4">
             <h3 className="font-bold mb-4 flex items-center text-slate-800">
               <Edit2 className="w-5 h-5 mr-1 text-[#1e6ebb]" />
-              自訂項目內容
+              {t.itemEditTitle}
             </h3>
             <div className="mb-5">
               <input 
@@ -680,7 +700,7 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
                 value={itemEditInput}
                 onChange={e => setItemEditInput(e.target.value)}
                 className="border border-slate-300 rounded-md px-3 py-1.5 outline-none focus:border-[#1e6ebb] w-full shadow-inner"
-                placeholder="輸入項目名稱"
+                placeholder={t.itemEditPlaceholder}
                 autoFocus
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') handleItemEditSave(activeItemEditId);
@@ -688,8 +708,8 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
               />
             </div>
             <div className="flex justify-end gap-2">
-              <button onClick={() => setActiveItemEditId(null)} className="px-4 py-1.5 text-slate-600 hover:bg-slate-100 rounded-md transition-colors">取消</button>
-              <button onClick={() => handleItemEditSave(activeItemEditId)} className="bg-[#1e6ebb] text-white px-4 py-1.5 rounded-md hover:bg-[#155694] transition-colors shadow-sm">確定</button>
+              <button onClick={() => setActiveItemEditId(null)} className="px-4 py-1.5 text-slate-600 hover:bg-slate-100 rounded-md transition-colors">{t.cancel}</button>
+              <button onClick={() => handleItemEditSave(activeItemEditId)} className="bg-[#1e6ebb] text-white px-4 py-1.5 rounded-md hover:bg-[#155694] transition-colors shadow-sm">{t.confirm}</button>
             </div>
           </div>
         </div>
@@ -698,14 +718,14 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
       {showBackWarning && (
         <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 print:hidden">
           <div className="bg-white rounded-xl shadow-xl p-6 w-[30rem]">
-            <h3 className="text-xl font-bold mb-4 text-slate-800">確定返回？</h3>
-            <p className="text-slate-600 mb-6 leading-relaxed">您即將返回商品目錄。請問是否要保留目前的報價明細（包含客戶資料與施工項目）以便繼續使用？</p>
+            <h3 className="text-xl font-bold mb-4 text-slate-800">{t.backWarningTitle}</h3>
+            <p className="text-slate-600 mb-6 leading-relaxed">{t.backWarningMessage}</p>
             <div className="flex justify-end gap-3">
               <button 
                 onClick={() => setShowBackWarning(false)} 
                 className="px-4 py-2 text-slate-600 hover:bg-slate-100 rounded-md transition-colors"
               >
-                取消返回
+                {t.cancelBack}
               </button>
               <button 
                 onClick={() => {
@@ -714,7 +734,7 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
                 }} 
                 className="px-4 py-2 border border-red-200 text-red-600 bg-red-50 hover:bg-red-100 rounded-md transition-colors font-medium"
               >
-                清除明細並返回
+                {t.clearAndBack}
               </button>
               <button 
                 onClick={() => {
@@ -723,7 +743,7 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
                 }} 
                 className="px-4 py-2 bg-[#1e6ebb] text-white rounded-md hover:bg-[#155694] transition-colors font-medium shadow-sm"
               >
-                保留明細繼續使用
+                {t.keepDetails}
               </button>
             </div>
           </div>

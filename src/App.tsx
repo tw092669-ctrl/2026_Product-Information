@@ -3,11 +3,13 @@ import { ACProduct, QuoteProduct } from './types';
 import { SearchView } from './components/SearchView';
 import { QuoteView } from './components/QuoteView';
 import { MOCK_AC_PRODUCTS } from './mockData';
+import type { AppLanguage } from './i18n';
 
 export default function App() {
   const [currentView, setCurrentView] = useState<'search' | 'quote'>('search');
   const [selectedProducts, setSelectedProducts] = useState<QuoteProduct[]>([]);
   const [products, setProducts] = useState<ACProduct[]>(MOCK_AC_PRODUCTS);
+  const [language, setLanguage] = useState<AppLanguage>('zh');
 
   const [quoteKey, setQuoteKey] = useState(0);
 
@@ -84,6 +86,8 @@ export default function App() {
             selectedProducts={selectedProducts} 
             onToggleProduct={handleToggleProduct}
             onNavigateToQuote={() => setCurrentView('quote')}
+            language={language}
+            onToggleLanguage={() => setLanguage(prev => prev === 'zh' ? 'fr' : 'zh')}
           />
         </div>
         <div style={{ display: currentView === 'quote' ? 'flex' : 'none', flexDirection: 'column', height: '100%', overflow: 'auto' }}>
@@ -93,6 +97,8 @@ export default function App() {
             onUpdateProductQuantity={handleUpdateQuantity}
             onRemoveProduct={handleRemoveProduct}
             onNavigateBack={handleNavigateBack}
+            language={language}
+            onToggleLanguage={() => setLanguage(prev => prev === 'zh' ? 'fr' : 'zh')}
           />
         </div>
       </div>

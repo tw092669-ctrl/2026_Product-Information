@@ -3,6 +3,7 @@ import { Search, ShoppingCart, Info, LayoutDashboard, Layers, Link as LinkIcon, 
 import Papa from 'papaparse';
 import { ACProduct, ACMode, ACType } from '../types';
 import { cn, getBrandColor, getBrandDisplayName } from '../utils';
+import { uiText, type AppLanguage } from '../i18n';
 
 interface SearchViewProps {
   products: ACProduct[];
@@ -10,6 +11,8 @@ interface SearchViewProps {
   selectedProducts: ACProduct[];
   onToggleProduct: (product: ACProduct, action?: 'add' | 'remove') => void;
   onNavigateToQuote: () => void;
+  language: AppLanguage;
+  onToggleLanguage: () => void;
 }
 
 export const SearchView: React.FC<SearchViewProps> = ({
@@ -18,12 +21,15 @@ export const SearchView: React.FC<SearchViewProps> = ({
   selectedProducts,
   onToggleProduct,
   onNavigateToQuote,
+  language,
+  onToggleLanguage,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [acMode, setAcMode] = useState<ACMode>('整組');
   const [selectedBrand, setSelectedBrand] = useState<string>('全部');
   const [selectedType, setSelectedType] = useState<string>('全部');
   const [selectedEnvironment, setSelectedEnvironment] = useState<string>('全部');
+  const t = uiText[language];
   const [showImportDialog, setShowImportDialog] = useState(false);
   const [sheetUrl, setSheetUrl] = useState('');
   const [importLoading, setImportLoading] = useState(false);
@@ -70,6 +76,8 @@ export const SearchView: React.FC<SearchViewProps> = ({
     setAcMode(mode);
     setSelectedType('全部'); // Reset sub-type when mode changes
   };
+
+  const currentLabel = language === 'zh' ? '中文' : 'Français';
 
   // Auto-load Google Sheets on component mount
   useEffect(() => {
@@ -193,10 +201,10 @@ export const SearchView: React.FC<SearchViewProps> = ({
             </button>
             <h2 className="text-xl font-bold flex items-center gap-2 mb-2">
               <Download className="w-5 h-5 text-blue-400" />
-              匯入雲端試算表
+              {t.importDialogTitle}
             </h2>
             <p className="text-sm text-gray-400 mb-4">
-              請貼上公開的 Google 試算表連結。確保試算表的第一列包含欄位名稱：<br />
+              {t.importDialogDescription}<br />
               <span className="text-gray-300 font-mono text-xs bg-[#2D3748] px-1 py-0.5 rounded">產品名稱</span>, 
               <span className="text-gray-300 font-mono text-xs bg-[#2D3748] px-1 py-0.5 rounded mx-1">品牌</span>, 
               <span className="text-gray-300 font-mono text-xs bg-[#2D3748] px-1 py-0.5 rounded mx-1">樣式</span>, 
@@ -217,14 +225,14 @@ export const SearchView: React.FC<SearchViewProps> = ({
                   onClick={() => setShowImportDialog(false)}
                   className="px-4 py-2 rounded-lg text-sm font-medium text-gray-400 hover:text-white transition-colors"
                 >
-                  取消
+                  {t.importDialogCancel}
                 </button>
                 <button 
                   onClick={handleImport}
                   disabled={!sheetUrl || importLoading}
                   className="px-4 py-2 rounded-lg text-sm font-medium bg-blue-600 hover:bg-blue-500 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                 >
-                  {importLoading ? '匯入中...' : '確定匯入'}
+                  {importLoading ? t.importDialogLoading : t.importDialogConfirm}
                 </button>
               </div>
             </div>
@@ -240,7 +248,7 @@ export const SearchView: React.FC<SearchViewProps> = ({
           <div className="flex flex-col items-center justify-center space-y-1 mb-2">
              <h2 className="font-serif italic text-sm text-[#D4AF37]/60 tracking-widest">Our Delicate Collection, Exclusive Choices</h2>
              <h1 className="flex items-center gap-2 text-2xl font-serif font-bold text-transparent bg-clip-text bg-gradient-to-r from-[#D4AF37] via-[#f1e5ac] to-[#D4AF37] tracking-wider uppercase drop-shadow-md">
-                小隼查詢系統 <span className="text-base lowercase tracking-normal text-[#D4AF37]/80">Ver 3.0</span>
+                {t.appTitle} <span className="text-base lowercase tracking-normal text-[#D4AF37]/80">{t.version}</span>
              </h1>
           </div>
 
@@ -251,7 +259,13 @@ export const SearchView: React.FC<SearchViewProps> = ({
                 className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-[#151B2E] hover:bg-[#D4AF37]/10 border border-[#D4AF37]/30 rounded-md transition-all text-[#D4AF37]/70 hover:text-[#D4AF37]"
               >
                 <LinkIcon className="w-3.5 h-3.5" />
-                匯入試算表
+                {t.importSpreadsheet}
+              </button>
+              <button
+                onClick={onToggleLanguage}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium bg-[#151B2E] hover:bg-[#D4AF37]/10 border border-[#D4AF37]/30 rounded-md transition-all text-[#D4AF37]/70 hover:text-[#D4AF37]"
+              >
+                {t.switchLanguage} · {currentLabel}
               </button>
               <button
                 onClick={() => setIsSimplified(!isSimplified)}
@@ -262,14 +276,14 @@ export const SearchView: React.FC<SearchViewProps> = ({
                     : "bg-[#151B2E] border-[#D4AF37]/30 text-[#D4AF37]/70 hover:text-[#D4AF37] hover:bg-[#D4AF37]/10"
                 )}
               >
-                {isSimplified ? '完整模式' : '簡化模式'}
+                {isSimplified ? t.fullMode : t.simplifiedMode}
               </button>
             </div>
             
             <div className="relative w-full md:w-80 group">
               <input
                 type="text"
-                placeholder="搜尋型號、品牌..."
+                placeholder={t.searchPlaceholder}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="block w-full pl-10 pr-3 py-2 border border-[#D4AF37]/30 rounded-md bg-[#151B2E] text-sm text-slate-200 placeholder-[#D4AF37]/40 focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37]/50 transition-all shadow-inner"
@@ -281,7 +295,7 @@ export const SearchView: React.FC<SearchViewProps> = ({
           <div className="flex flex-nowrap items-center gap-2 md:gap-4 bg-[#0A0E1A]/80 p-2 md:p-3 rounded-lg border border-[#D4AF37]/20 w-full shadow-inner ring-1 ring-white/5">
             {/* Mode Selection */}
             <div className="flex items-center gap-2 border-r border-[#D4AF37]/20 pr-2 md:pr-4 shrink-0">
-              <span className="hidden md:inline text-xs font-semibold text-[#D4AF37]/70 uppercase tracking-widest">種類</span>
+              <span className="hidden md:inline text-xs font-semibold text-[#D4AF37]/70 uppercase tracking-widest">{t.type}</span>
               <div className="flex p-0.5 bg-[#151B2E] rounded-md border border-[#D4AF37]/10">
                 {(['整組', '多聯'] as ACMode[]).map((mode) => (
                   <button
@@ -301,13 +315,13 @@ export const SearchView: React.FC<SearchViewProps> = ({
 
             {/* Type Filter */}
             <div className="flex items-center gap-2 flex-1 min-w-0">
-              <label className="hidden md:inline text-xs font-semibold text-[#D4AF37]/70 uppercase tracking-widest whitespace-nowrap shrink-0">機型</label>
+              <label className="hidden md:inline text-xs font-semibold text-[#D4AF37]/70 uppercase tracking-widest whitespace-nowrap shrink-0">{t.model}</label>
               <select 
                 value={selectedType} 
                 onChange={e => setSelectedType(e.target.value)}
                 className="block w-full min-w-0 md:w-36 px-1 md:px-2 py-1.5 border border-[#D4AF37]/30 bg-[#151B2E] text-slate-200 rounded-md focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37]/50 transition-colors text-xs md:text-sm truncate"
               >
-                <option value="全部">全部機型</option>
+                <option value="全部">{t.allModels}</option>
                 {currentAvailableTypes.map(type => (
                   <option key={type} value={type}>{type}</option>
                 ))}
@@ -316,13 +330,13 @@ export const SearchView: React.FC<SearchViewProps> = ({
 
             {/* Environment Filter */}
             <div className="flex items-center gap-2 flex-1 min-w-0">
-              <label className="hidden md:inline text-xs font-semibold text-[#D4AF37]/70 uppercase tracking-widest whitespace-nowrap shrink-0">環境</label>
+              <label className="hidden md:inline text-xs font-semibold text-[#D4AF37]/70 uppercase tracking-widest whitespace-nowrap shrink-0">{t.environment}</label>
               <select 
                 value={selectedEnvironment} 
                 onChange={e => setSelectedEnvironment(e.target.value)}
                 className="block w-full min-w-0 md:w-28 px-1 md:px-2 py-1.5 border border-[#D4AF37]/30 bg-[#151B2E] text-slate-200 rounded-md focus:outline-none focus:border-[#D4AF37] focus:ring-1 focus:ring-[#D4AF37]/50 transition-colors text-xs md:text-sm truncate"
               >
-                <option value="全部">全部</option>
+                <option value="全部">{t.all}</option>
                 {availableEnvironments.map(env => (
                   <option key={env} value={env}>{env}</option>
                 ))}
@@ -332,7 +346,7 @@ export const SearchView: React.FC<SearchViewProps> = ({
 
           {/* Brand Selection (Visual Buttons) */}
           <div className="flex flex-wrap items-center gap-2 mt-4 mb-2">
-            <span className="text-xs font-semibold text-[#D4AF37]/70 uppercase tracking-widest">品牌</span>
+            <span className="text-xs font-semibold text-[#D4AF37]/70 uppercase tracking-widest">{t.brand}</span>
             <div className="flex flex-wrap gap-1.5">
               <button
                 onClick={() => setSelectedBrand('全部')}
@@ -343,7 +357,7 @@ export const SearchView: React.FC<SearchViewProps> = ({
                     : "bg-[#151B2E] text-[#D4AF37]/70 border-[#D4AF37]/30 hover:border-[#D4AF37]/60 hover:bg-[#D4AF37]/5"
                 )}
               >
-                全部
+                {t.all}
               </button>
               {availableBrands.map(brand => (
                 <button
@@ -369,7 +383,7 @@ export const SearchView: React.FC<SearchViewProps> = ({
           {filteredProducts.length === 0 ? (
              <div className="flex flex-col items-center justify-center p-12 text-[#D4AF37]/50 bg-[#151B2E] rounded-xl border border-dashed border-[#D4AF37]/30 relative z-10 m-3">
                <Info className="w-8 h-8 mb-3" />
-               <p>目前沒有符合條件的機型</p>
+               <p>{t.emptyState}</p>
              </div>
           ) : (
             <div className="flex-1 overflow-auto rounded-xl relative z-10 m-1.5 bg-[#0B101E]/50">
@@ -475,13 +489,13 @@ export const SearchView: React.FC<SearchViewProps> = ({
         <div className="fixed bottom-6 right-6 md:bottom-8 md:right-8 bg-[#151B2E]/90 backdrop-blur-md border border-[#D4AF37]/40 text-slate-200 rounded-full shadow-[0_10px_40px_rgba(0,0,0,0.8)] px-4 md:px-6 py-3 flex items-center gap-4 md:gap-6 animate-in slide-in-from-bottom-5 z-50">
            <div className="flex items-center gap-2">
              <ShoppingCart className="w-5 h-5 text-[#D4AF37]" />
-             <span className="font-medium text-xs md:text-sm tracking-wide">已選取 <span className="text-[#D4AF37] font-bold text-base md:text-lg">{selectedProducts.length}</span> 項</span>
+             <span className="font-medium text-xs md:text-sm tracking-wide">{t.selectedCount} <span className="text-[#D4AF37] font-bold text-base md:text-lg">{selectedProducts.length}</span> 項</span>
            </div>
            <button 
              onClick={onNavigateToQuote}
              className="bg-gradient-to-r from-[#D4AF37] to-[#e6ca7b] hover:from-[#e6ca7b] hover:to-[#D4AF37] text-[#0B101E] px-4 md:px-6 py-2 rounded-full font-bold transition-all text-xs md:text-sm shadow-[0_0_15px_rgba(212,175,55,0.4)] active:scale-95 whitespace-nowrap"
            >
-             製作報價單
+             {t.createQuote}
            </button>
         </div>
       )}
@@ -491,10 +505,10 @@ export const SearchView: React.FC<SearchViewProps> = ({
         <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <div className="bg-[#151B2E] border border-[#D4AF37]/30 rounded-xl max-w-sm w-full shadow-2xl overflow-hidden flex flex-col p-6 animate-in zoom-in-95">
             <h3 className="text-[#D4AF37] font-semibold text-lg border-b border-[#D4AF37]/10 pb-3 mb-4">
-              重複加入內機
+              {t.duplicateTitle}
             </h3>
             <p className="text-gray-300 text-sm mb-6">
-              您已選取過此款型號：<span className="text-[#E8D099] font-mono">{duplicatePromptProduct.model}</span>。請問要取消選取，還是新增一台此型號內機？
+              <span className="text-[#E8D099] font-mono">{duplicatePromptProduct.model}</span> {t.duplicateMessage}
             </p>
             <div className="flex flex-col gap-3">
               <button 
@@ -504,7 +518,7 @@ export const SearchView: React.FC<SearchViewProps> = ({
                 }}
                 className="w-full bg-[#D4AF37]/10 text-[#D4AF37] border border-[#D4AF37]/30 hover:bg-[#D4AF37]/20 py-2 rounded-lg transition-colors font-medium text-sm"
               >
-                新增一台此型號
+                {t.duplicateAdd}
               </button>
               <button 
                 onClick={() => {
@@ -513,7 +527,7 @@ export const SearchView: React.FC<SearchViewProps> = ({
                 }}
                 className="w-full text-red-400 hover:text-red-300 border border-red-500/20 hover:bg-red-500/10 py-2 rounded-lg transition-colors font-medium text-sm"
               >
-                取消選取所有此型號
+                {t.duplicateRemove}
               </button>
               <button 
                 onClick={() => setDuplicatePromptProduct(null)}
