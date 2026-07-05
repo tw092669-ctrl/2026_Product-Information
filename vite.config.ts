@@ -24,7 +24,8 @@ export default defineConfig(({mode}) => {
       watch: process.env.DISABLE_HMR === 'true' ? null : {},
     },
     build: {
-      outDir: 'dist',
+      outDir: 'docs',
+      emptyOutDir: true,
       sourcemap: mode === 'development',
       minify: 'terser',
       terserOptions: {
