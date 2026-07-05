@@ -196,31 +196,16 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
   const handleMoveProductGroup = (groupIndex: number, direction: 'up' | 'down') => {
     if (!onReorderProducts) return;
 
-    const groupStartIndices: number[] = [];
-    let currentIndex = 0;
-    productGroups.forEach(group => {
-      groupStartIndices.push(currentIndex);
-      currentIndex += group.length;
-    });
-
-    const group = productGroups[groupIndex];
-    if (!group) return;
-
-    const startIndex = groupStartIndices[groupIndex];
-    const groupLength = group.length;
-    const nextProducts = [...products];
-
+    const nextGroups = [...productGroups];
     if (direction === 'up' && groupIndex > 0) {
-      const prevStart = groupStartIndices[groupIndex - 1];
-      const [movedGroup] = nextProducts.splice(startIndex, groupLength);
-      nextProducts.splice(prevStart, 0, ...movedGroup);
-      onReorderProducts(nextProducts);
-    } else if (direction === 'down' && groupIndex < productGroups.length - 1) {
-      const nextStart = groupStartIndices[groupIndex + 1];
-      const [movedGroup] = nextProducts.splice(startIndex, groupLength);
-      nextProducts.splice(nextStart, 0, ...movedGroup);
-      onReorderProducts(nextProducts);
+      [nextGroups[groupIndex - 1], nextGroups[groupIndex]] = [nextGroups[groupIndex], nextGroups[groupIndex - 1]];
+    } else if (direction === 'down' && groupIndex < nextGroups.length - 1) {
+      [nextGroups[groupIndex + 1], nextGroups[groupIndex]] = [nextGroups[groupIndex], nextGroups[groupIndex + 1]];
+    } else {
+      return;
     }
+
+    onReorderProducts(nextGroups.flat());
   };
 
   const moveProductGroupToIndex = (sourceIndex: number, targetIndex: number) => {
