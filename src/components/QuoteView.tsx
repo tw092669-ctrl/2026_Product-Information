@@ -3,6 +3,7 @@ import { ArrowLeft, Plus, Trash2, Printer, Image as ImageIcon, DollarSign, Chevr
 import html2canvas from 'html2canvas';
 import { QuoteProduct, QuoteConstructionItem } from '../types';
 import { COMMON_CONSTRUCTION_ITEMS, CONSTRUCTION_ITEM_PRICES } from '../mockData';
+import { calculateGroupUnitPrice, calculateProductsTotal } from '../quoteCalculations';
 import { cn, getBrandDisplayName } from '../utils';
 import { uiText, type AppLanguage } from '../i18n';
 
@@ -10,6 +11,7 @@ interface QuoteViewProps {
   products: QuoteProduct[];
   onUpdateProductQuantity: (id: string, diff: number) => void;
   onRemoveProduct: (id: string) => void;
+  onReorderProducts?: (products: QuoteProduct[]) => void;
   onNavigateBack: (keepDetails: boolean) => void;
   language: AppLanguage;
   onToggleLanguage: () => void;
@@ -19,6 +21,7 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
   products,
   onUpdateProductQuantity,
   onRemoveProduct,
+  onReorderProducts,
   onNavigateBack,
   language,
   onToggleLanguage,
@@ -142,15 +145,7 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
 
   // 計算產品總計
   const productsTotal = useMemo(() => {
-    return productGroups.reduce((sum, group) => {
-      // Calculate total group unit price
-      const groupUnitPrice = group.reduce((groupSum, p) => {
-        const adj = productDetails[p.id]?.priceAdjustment || 0;
-        return groupSum + p.price + adj;
-      }, 0);
-      // Multiply by main product's quantity
-      return sum + groupUnitPrice * group[0].quantity;
-    }, 0);
+    return calculateProductsTotal(productGroups, productDetails);
   }, [productGroups, productDetails]);
 
   // 計算施工總計
@@ -172,6 +167,36 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
     }
     return t.equipmentDetail;
   }, [products, t]);
+
+  const handleMoveProductGroup = (groupIndex: number, direction: 'up' | 'down') => {
+    if (!onReorderProducts) return;
+
+    const groupStartIndices: number[] = [];
+    let currentIndex = 0;
+    productGroups.forEach(group => {
+      groupStartIndices.push(currentIndex);
+      currentIndex += group.length;
+    });
+
+    const group = productGroups[groupIndex];
+    if (!group) return;
+
+    const startIndex = groupStartIndices[groupIndex];
+    const groupLength = group.length;
+    const nextProducts = [...products];
+
+    if (direction === 'up' && groupIndex > 0) {
+      const prevStart = groupStartIndices[groupIndex - 1];
+      const [movedGroup] = nextProducts.splice(startIndex, groupLength);
+      nextProducts.splice(prevStart, 0, ...movedGroup);
+      onReorderProducts(nextProducts);
+    } else if (direction === 'down' && groupIndex < productGroups.length - 1) {
+      const nextStart = groupStartIndices[groupIndex + 1];
+      const [movedGroup] = nextProducts.splice(startIndex, groupLength);
+      nextProducts.splice(nextStart, 0, ...movedGroup);
+      onReorderProducts(nextProducts);
+    }
+  };
 
   const handleAddConstructionItem = () => {
     const newItem: QuoteConstructionItem = {
@@ -375,10 +400,7 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
                 const mainDetails = productDetails[mainProduct.id] || { location: '', notes: '' };
                 const isLast = groupIndex === productGroups.length - 1;
                 
-                const unitPrice = group.reduce((sum, p) => {
-                  const qty = p.id === mainProduct.id ? 1 : p.quantity;
-                  return sum + (p.price + (productDetails[p.id]?.priceAdjustment || 0)) * qty;
-                }, 0);
+                const unitPrice = calculateGroupUnitPrice(group, productDetails);
                 
                 let maxPowerValue = -1;
                 let autoPower = '';
@@ -512,6 +534,24 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
                              {mainDetails.priceAdjustment > 0 ? '+' : ''}{mainDetails.priceAdjustment}
                            </div>
                          ) : null}
+                       </div>
+                       <div className="absolute top-1 right-1 flex gap-1 opacity-100 md:opacity-0 md:group-hover/note:opacity-100 transition-opacity print:hidden">
+                         <button
+                           onClick={() => handleMoveProductGroup(groupIndex, 'up')}
+                           disabled={groupIndex === 0}
+                           className="p-0.5 rounded text-slate-400 hover:text-[#1e6ebb] disabled:opacity-30 disabled:hover:text-slate-400 bg-white/80 hover:bg-white border border-slate-200"
+                           title="上移項目"
+                         >
+                           <ChevronUp className="w-3.5 h-3.5" />
+                         </button>
+                         <button
+                           onClick={() => handleMoveProductGroup(groupIndex, 'down')}
+                           disabled={groupIndex === productGroups.length - 1}
+                           className="p-0.5 rounded text-slate-400 hover:text-[#1e6ebb] disabled:opacity-30 disabled:hover:text-slate-400 bg-white/80 hover:bg-white border border-slate-200"
+                           title="下移項目"
+                         >
+                           <ChevronDown className="w-3.5 h-3.5" />
+                         </button>
                        </div>
                        <button 
                          onClick={() => openAdjustment(mainProduct.id, mainDetails.priceAdjustment || 0)}

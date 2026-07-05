@@ -43,6 +43,10 @@ export default function App() {
     setSelectedProducts(prev => prev.filter(p => p.id !== id));
   };
 
+  const handleReorderProducts = (nextProducts: QuoteProduct[]) => {
+    setSelectedProducts(nextProducts);
+  };
+
   const handleNavigateBack = (keepDetails: boolean) => {
     setCurrentView('search');
     if (!keepDetails) {
@@ -95,6 +99,7 @@ export default function App() {
             products={selectedProducts}
             onUpdateProductQuantity={handleUpdateQuantity}
             onRemoveProduct={handleRemoveProduct}
+            onReorderProducts={handleReorderProducts}
             onNavigateBack={handleNavigateBack}
             language={language}
             onToggleLanguage={() => setLanguage(prev => prev === 'zh' ? 'fr' : 'zh')}
