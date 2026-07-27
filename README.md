@@ -118,10 +118,40 @@ https://ai.google.dev/
 
 ## Deployment
 
-The application can be deployed to any static hosting service:
+This project is configured to deploy to GitHub Pages in a stable way.
 
-1. Build the project: `npm run build`
-2. Deploy the `dist` folder to your hosting service
+### Deployment rule
+- Do not deploy from the `main` branch directly as a static site.
+- The deployment workflow publishes the built site to the `gh-pages` branch.
+- GitHub Pages should be configured to serve from the `gh-pages` branch at `/` (root).
+
+### Required setup in GitHub
+1. Open the repository Settings → Pages.
+2. Under "Build and deployment", set:
+   - Source: Deploy from a branch
+   - Branch: `gh-pages`
+   - Folder: `/ (root)`
+3. Make sure the repository has Actions enabled.
+
+### What happens on push
+When code is pushed to `main`:
+1. The workflow installs dependencies.
+2. The app is built.
+3. The generated static files are published to `gh-pages`.
+4. GitHub Pages serves the site from that branch.
+
+### Important notes
+- If the site is not loading, first check GitHub Pages settings and confirm the source is `gh-pages`.
+- Do not manually switch Pages to `main` or `docs/` unless you intentionally want a different deployment method.
+- Keep the workflow file [.github/workflows/deploy-pages.yml](.github/workflows/deploy-pages.yml) unchanged unless you are intentionally changing the deployment target.
+
+### Local verification
+Run the following before pushing:
+```bash
+npm run build
+```
+
+If the build succeeds, the deployment workflow will publish the site to GitHub Pages.
 
 ## Troubleshooting
 
