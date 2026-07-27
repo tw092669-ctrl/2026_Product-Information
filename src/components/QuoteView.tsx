@@ -528,7 +528,7 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
                                        e.stopPropagation();
                                        onRemoveProduct(mainProduct.id);
                                      }}
-                                     className="rounded border border-red-200 bg-red-50 px-2 py-1 text-[10px] font-medium text-red-600"
+                                     className="rounded border border-red-200 bg-red-50 px-2 py-1 text-[10px] font-medium text-red-600 print:hidden"
                                    >
                                      刪除
                                    </button>
@@ -538,7 +538,7 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
                                          e.stopPropagation();
                                          handleProductDetailChange(mainProduct.id, 'mergeWithNext', true);
                                        }}
-                                       className="rounded border border-blue-200 bg-blue-50 px-2 py-1 text-[10px] font-medium text-blue-600"
+                                       className="rounded border border-blue-200 bg-blue-50 px-2 py-1 text-[10px] font-medium text-blue-600 print:hidden"
                                      >
                                        合併
                                      </button>
@@ -548,7 +548,7 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
                                        e.stopPropagation();
                                        openAdjustment(mainProduct.id, mainDetails.priceAdjustment || 0);
                                      }}
-                                     className="rounded border border-emerald-200 bg-emerald-50 px-2 py-1 text-[10px] font-medium text-emerald-600"
+                                     className="rounded border border-emerald-200 bg-emerald-50 px-2 py-1 text-[10px] font-medium text-emerald-600 print:hidden"
                                    >
                                      調整
                                    </button>
@@ -710,7 +710,7 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
                             e.stopPropagation();
                             openItemEdit(item.id, item.name);
                           }}
-                          className="rounded border border-slate-200 bg-white px-2 py-1 text-[10px] font-medium text-slate-600 shadow-sm"
+                          className="rounded border border-slate-200 bg-white px-2 py-1 text-[10px] font-medium text-slate-600 shadow-sm print:hidden"
                         >
                           編輯
                         </button>
@@ -739,7 +739,7 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
                             e.stopPropagation();
                             handleRemoveConstructionItem(item.id);
                           }}
-                          className="rounded border border-red-200 bg-red-50 px-2 py-1 text-[10px] font-medium text-red-600 shadow-sm"
+                          className="rounded border border-red-200 bg-red-50 px-2 py-1 text-[10px] font-medium text-red-600 shadow-sm print:hidden"
                         >
                           刪除
                         </button>

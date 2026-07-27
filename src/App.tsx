@@ -1,14 +1,22 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ACProduct, QuoteProduct } from './types';
 import { SearchView } from './components/SearchView';
 import { QuoteView } from './components/QuoteView';
 import type { AppLanguage } from './i18n';
+
+interface AppVersionInfo {
+  code: string;
+  date: string;
+  generatedAt: string;
+}
 
 export default function App() {
   const [currentView, setCurrentView] = useState<'search' | 'quote'>('search');
   const [selectedProducts, setSelectedProducts] = useState<QuoteProduct[]>([]);
   const [products, setProducts] = useState<ACProduct[]>([]);
   const [language, setLanguage] = useState<AppLanguage>('zh');
+  const [versionInfo, setVersionInfo] = useState<AppVersionInfo | null>(null);
+  const [showVersionToast, setShowVersionToast] = useState(false);
 
   const [quoteKey, setQuoteKey] = useState(0);
 
@@ -55,6 +63,35 @@ export default function App() {
     }
   };
 
+  useEffect(() => {
+    const loadVersionInfo = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.BASE_URL}version.json`);
+        if (!response.ok) return;
+        const latestVersion = await response.json() as AppVersionInfo;
+        setVersionInfo(latestVersion);
+
+        const storedVersionRaw = localStorage.getItem('app-version-code');
+        const storedVersionDate = localStorage.getItem('app-version-date');
+
+        if (storedVersionRaw && storedVersionDate) {
+          const isChanged = storedVersionRaw !== latestVersion.code || storedVersionDate !== latestVersion.date;
+          if (isChanged) {
+            setShowVersionToast(true);
+            window.setTimeout(() => setShowVersionToast(false), 3000);
+          }
+        }
+
+        localStorage.setItem('app-version-code', latestVersion.code);
+        localStorage.setItem('app-version-date', latestVersion.date);
+      } catch (error) {
+        console.error('Failed to load app version info:', error);
+      }
+    };
+
+    loadVersionInfo();
+  }, []);
+
   return (
     <div className="h-screen w-full font-sans text-[#E2E8F0] bg-[#080d1e] overflow-auto flex flex-col relative selection:bg-[#C5A059]/30">
       {/* Background Gradients and Decor */}
@@ -80,6 +117,13 @@ export default function App() {
         <div className="absolute -top-24 -right-24 w-96 h-96 bg-gradient-radial from-pink-500/10 via-pink-300/5 to-transparent rounded-full blur-3xl mix-blend-screen"></div>
         <div className="absolute -bottom-24 -left-24 w-80 h-80 bg-gradient-radial from-[#D4AF37]/10 via-[#D4AF37]/5 to-transparent rounded-full blur-3xl mix-blend-screen"></div>
       </div>
+
+      {showVersionToast && versionInfo && (
+        <div className="fixed bottom-4 left-4 z-[60] rounded-lg border border-[#D4AF37]/40 bg-[#0B101E]/95 px-4 py-3 text-sm text-[#E8D099] shadow-lg backdrop-blur-md animate-in fade-in">
+          <div className="font-semibold">發現新版本</div>
+          <div className="text-xs text-[#D4AF37]/80 mt-1">push 日期：{versionInfo.date}</div>
+        </div>
+      )}
 
       <div className="relative z-10 flex flex-col h-full overflow-hidden">
         <div style={{ display: currentView === 'search' ? 'flex' : 'none', flexDirection: 'column', height: '100%' }}>

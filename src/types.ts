@@ -7,7 +7,7 @@ export type ACType =
   | '多聯內機' 
   | '多聯外機';
 
-export type ACMode = '整組' | '多聯';
+export type ACMode = '一對一' | '一對多';
 
 export interface ACProduct {
   id: string;

@@ -1,0 +1,7 @@
+#!/bin/sh
+npm run generate:version
+if git diff --quiet -- public/version.json; then
+  :
+else
+  git add public/version.json
+fi

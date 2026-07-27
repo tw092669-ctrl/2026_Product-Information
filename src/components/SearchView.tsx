@@ -27,7 +27,7 @@ export const SearchView: React.FC<SearchViewProps> = ({
   onToggleLanguage,
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
-  const [acMode, setAcMode] = useState<ACMode>('整組');
+  const [acMode, setAcMode] = useState<ACMode>('一對一');
   const [selectedBrand, setSelectedBrand] = useState<string>('全部');
   const [selectedType, setSelectedType] = useState<string>('全部');
   const [selectedEnvironment, setSelectedEnvironment] = useState<string>('全部');
@@ -62,10 +62,10 @@ export const SearchView: React.FC<SearchViewProps> = ({
       // Filter by Brand
       if (selectedBrand !== '全部' && getBrandDisplayName(product.brand) !== selectedBrand) return false;
 
-      // Filter by AC Mode (多聯 vs 整組)
-      const isMulti = product.type?.includes('多聯');
-      if (acMode === '多聯' && !isMulti) return false;
-      if (acMode === '整組' && isMulti) return false;
+      // Filter by AC Mode (一對多 vs 一對一)
+      const isMulti = isOneToManyStyle(product.type);
+      if (acMode === '一對多' && !isMulti) return false;
+      if (acMode === '一對一' && isMulti) return false;
 
       // Filter by Type
       if (selectedType !== '全部' && product.type !== selectedType) return false;
@@ -83,6 +83,23 @@ export const SearchView: React.FC<SearchViewProps> = ({
   };
 
   const currentLabel = language === 'zh' ? '中文' : 'Français';
+
+  const isOneToManyStyle = (type?: string) => {
+    const normalized = (type || '').toLowerCase();
+    return normalized.includes('一對多') || normalized.includes('多聯') || normalized.includes('one to many');
+  };
+
+  const getProductMode = (product: ACProduct): ACMode => {
+    return isOneToManyStyle(product.type) ? '一對多' : '一對一';
+  };
+
+  const getEquipmentRole = (product: ACProduct) => {
+    if (!isOneToManyStyle(product.type)) return null;
+    const environment = (product.environment || '').trim();
+    if (environment === '內機' || environment.includes('內機')) return '內機';
+    if (environment.includes('暖氣') || environment.includes('冷氣')) return '室外機';
+    return null;
+  };
 
   const handleCopyProductName = async (product: ACProduct, event: React.MouseEvent) => {
     event.stopPropagation();
@@ -235,9 +252,9 @@ export const SearchView: React.FC<SearchViewProps> = ({
     }
   };
 
-  const currentAvailableTypes = acMode === '整組' 
-    ? Array.from(new Set(products.filter(p => !p.type?.includes('多聯')).map(p => p.type || '未分類')))
-    : Array.from(new Set(products.filter(p => p.type?.includes('多聯')).map(p => p.type || '未分類')));
+  const currentAvailableTypes = acMode === '一對一'
+    ? Array.from(new Set(products.filter(p => getProductMode(p) === '一對一').map(p => p.type || '未分類')))
+    : Array.from(new Set(products.filter(p => getProductMode(p) === '一對多').map(p => p.type || '未分類')));
 
   return (
     <div className="flex flex-col h-full bg-[#0F1115]">
@@ -410,7 +427,7 @@ export const SearchView: React.FC<SearchViewProps> = ({
                 <div className="flex items-center gap-2 border-r border-[#D4AF37]/20 pr-2 md:pr-4 shrink-0">
                   <span className="hidden md:inline text-xs font-semibold text-[#D4AF37]/70 uppercase tracking-widest">{t.type}</span>
                   <div className="flex p-0.5 bg-[#151B2E] rounded-md border border-[#D4AF37]/10">
-                    {(['整組', '多聯'] as ACMode[]).map((mode) => (
+                    {(['一對一', '一對多'] as ACMode[]).map((mode) => (
                       <button
                         key={mode}
                         onClick={() => handleModeChange(mode)}
@@ -419,7 +436,7 @@ export const SearchView: React.FC<SearchViewProps> = ({
                           acMode === mode ? "bg-gradient-to-r from-[#D4AF37] to-[#e6ca7b] text-[#0B101E] shadow-sm font-bold" : "text-[#D4AF37]/60 hover:text-[#D4AF37] hover:bg-[#D4AF37]/5"
                         )}
                       >
-                        {mode === '整組' ? <LayoutDashboard className="w-3 md:w-3.5 h-3 md:h-3.5 inline-block mr-1 align-text-bottom" /> : <Layers className="w-3 md:w-3.5 h-3 md:h-3.5 inline-block mr-1 align-text-bottom" />}
+                        {mode === '一對一' ? <LayoutDashboard className="w-3 md:w-3.5 h-3 md:h-3.5 inline-block mr-1 align-text-bottom" /> : <Layers className="w-3 md:w-3.5 h-3 md:h-3.5 inline-block mr-1 align-text-bottom" />}
                         {mode}
                       </button>
                     ))}
@@ -478,6 +495,7 @@ export const SearchView: React.FC<SearchViewProps> = ({
                 <tbody className="block md:table-row-group divide-y md:divide-y divide-[#D4AF37]/10 text-sm font-sans tracking-tight">
                   {filteredProducts.map(product => {
                     const isSelected = selectedProducts.some(p => p.id === product.id || p.originalId === product.id);
+                    const equipmentRole = getEquipmentRole(product);
                     return (
                       <tr 
                         key={product.id} 
@@ -486,7 +504,7 @@ export const SearchView: React.FC<SearchViewProps> = ({
                           isSelected ? "bg-[#D4AF37]/10 border-l-2 md:border-l-2 border-[#D4AF37]" : "hover:bg-[#D4AF37]/5"
                         )}
                         onClick={() => {
-                          if (isSelected && (product.type === '多聯內機' || (typeof product.type === 'string' && product.type.includes('多聯內機')))) {
+                          if (isSelected && equipmentRole === '內機') {
                             setDuplicatePromptProduct(product);
                           } else {
                             onToggleProduct(product);
@@ -510,6 +528,9 @@ export const SearchView: React.FC<SearchViewProps> = ({
                               </span>
                               {product.kind && (
                                 <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#0A0E1A] text-gray-400 border border-[#D4AF37]/20">{product.kind}</span>
+                              )}
+                              {equipmentRole && (
+                                <span className="text-[10px] px-1.5 py-0.5 rounded bg-[#D4AF37]/10 text-[#E8D099] border border-[#D4AF37]/20">{equipmentRole}</span>
                               )}
                             </div>
                             <div
