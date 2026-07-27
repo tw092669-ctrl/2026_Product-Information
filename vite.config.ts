@@ -25,6 +25,13 @@ export default defineConfig(({mode}) => {
     },
     build: {
       outDir: 'docs',
+      rollupOptions: {
+        output: {
+          assetFileNames: 'assets/[name]-[hash][extname]',
+          chunkFileNames: 'assets/[name]-[hash].js',
+          entryFileNames: 'assets/[name]-[hash].js',
+        },
+      },
       emptyOutDir: true,
       sourcemap: mode === 'development',
       minify: 'terser',

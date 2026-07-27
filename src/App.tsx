@@ -66,9 +66,18 @@ export default function App() {
   useEffect(() => {
     const loadVersionInfo = async () => {
       try {
-        const response = await fetch(`${import.meta.env.BASE_URL}version.json`);
-        if (!response.ok) return;
+        const versionUrl = `${import.meta.env.BASE_URL}version.json`;
+        const response = await fetch(versionUrl, { cache: 'no-store' });
+        if (!response.ok) {
+          console.warn('Version manifest not available at', versionUrl);
+          return;
+        }
+
         const latestVersion = await response.json() as AppVersionInfo;
+        if (!latestVersion?.code) {
+          return;
+        }
+
         setVersionInfo(latestVersion);
 
         const storedVersionRaw = localStorage.getItem('app-version-code');
@@ -85,7 +94,7 @@ export default function App() {
         localStorage.setItem('app-version-code', latestVersion.code);
         localStorage.setItem('app-version-date', latestVersion.date);
       } catch (error) {
-        console.error('Failed to load app version info:', error);
+        console.warn('Failed to load app version info:', error);
       }
     };
 
