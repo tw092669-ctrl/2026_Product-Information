@@ -522,7 +522,7 @@ export const SearchView: React.FC<SearchViewProps> = ({
                               <span className={cn("font-semibold font-sans text-xs tracking-wide px-1.5 py-0.5 rounded", getBrandColor(product.brand))}>{getBrandDisplayName(product.brand)}</span>
                               <span className={cn(
                                 "px-1.5 py-0.5 rounded text-[10px] font-medium border",
-                                product.type?.includes('多聯') ? "bg-indigo-900/40 text-indigo-300 border-indigo-700/50" : "bg-[#151B2E] text-gray-300 border-[#D4AF37]/30"
+                                getProductMode(product) === '一對多' ? "bg-indigo-900/40 text-indigo-300 border-indigo-700/50" : "bg-[#151B2E] text-gray-300 border-[#D4AF37]/30"
                               )}>
                                 {product.type}
                               </span>

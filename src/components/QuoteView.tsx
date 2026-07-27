@@ -522,7 +522,7 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
                                   {product.model}
                                </div>
                                {pIndex === 0 && repeatIndex === 0 && (
-                                 <div className="mb-1 flex flex-wrap justify-center gap-1.5 md:hidden">
+                                 <div className="mb-1 flex flex-wrap justify-center gap-1.5 md:hidden print:hidden">
                                    <button
                                      onClick={(e) => {
                                        e.stopPropagation();
@@ -704,7 +704,7 @@ export const QuoteView: React.FC<QuoteViewProps> = ({
                         </button>
                       </div>
                       <span className="hidden print:inline">{item.name}</span>
-                      <div className="mt-2 flex flex-wrap justify-center gap-1.5 md:hidden">
+                      <div className="mt-2 flex flex-wrap justify-center gap-1.5 md:hidden print:hidden">
                         <button
                           onClick={(e) => {
                             e.stopPropagation();
