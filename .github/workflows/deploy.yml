@@ -64,16 +64,16 @@ jobs:
       - name: Verify build output
         run: |
           echo "Build output:"
-          ls -lah dist/
+          ls -lah docs/
           echo ""
           echo "HTML content check:"
-          head -20 dist/index.html
+          head -20 docs/index.html
 
       - name: Upload artifact
         id: upload
         uses: actions/upload-pages-artifact@v3
         with:
-          path: 'dist'
+          path: 'docs'
       
       - name: Deploy to GitHub Pages
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
