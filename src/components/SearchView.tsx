@@ -41,6 +41,25 @@ export const SearchView: React.FC<SearchViewProps> = ({
   const [loadError, setLoadError] = useState<string | null>(null);
   const [copiedProductName, setCopiedProductName] = useState<string | null>(null);
 
+  const currentLabel = language === 'zh' ? '中文' : 'Français';
+
+  const isOneToManyStyle = (type?: string) => {
+    const normalized = (type || '').toLowerCase();
+    return normalized.includes('一對多') || normalized.includes('多聯') || normalized.includes('one to many');
+  };
+
+  const getProductMode = (product: ACProduct): ACMode => {
+    return isOneToManyStyle(product.type) ? '一對多' : '一對一';
+  };
+
+  const getEquipmentRole = (product: ACProduct) => {
+    if (!isOneToManyStyle(product.type)) return null;
+    const environment = (product.environment || '').trim();
+    if (environment === '內機' || environment.includes('內機')) return '內機';
+    if (environment.includes('暖氣') || environment.includes('冷氣')) return '室外機';
+    return null;
+  };
+
   const availableBrands = useMemo(() => {
     return Array.from(new Set(products.map(p => getBrandDisplayName(p.brand)))).sort();
   }, [products]);
@@ -80,25 +99,6 @@ export const SearchView: React.FC<SearchViewProps> = ({
   const handleModeChange = (mode: ACMode) => {
     setAcMode(mode);
     setSelectedType('全部'); // Reset sub-type when mode changes
-  };
-
-  const currentLabel = language === 'zh' ? '中文' : 'Français';
-
-  const isOneToManyStyle = (type?: string) => {
-    const normalized = (type || '').toLowerCase();
-    return normalized.includes('一對多') || normalized.includes('多聯') || normalized.includes('one to many');
-  };
-
-  const getProductMode = (product: ACProduct): ACMode => {
-    return isOneToManyStyle(product.type) ? '一對多' : '一對一';
-  };
-
-  const getEquipmentRole = (product: ACProduct) => {
-    if (!isOneToManyStyle(product.type)) return null;
-    const environment = (product.environment || '').trim();
-    if (environment === '內機' || environment.includes('內機')) return '內機';
-    if (environment.includes('暖氣') || environment.includes('冷氣')) return '室外機';
-    return null;
   };
 
   const handleCopyProductName = async (product: ACProduct, event: React.MouseEvent) => {
